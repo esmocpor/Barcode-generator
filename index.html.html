@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Tickets DC">
+<title>Generador — Tickets y Códigos</title>
+<style>
+  :root {
+    --bg: #f5f4f0; --surface: #ffffff; --border: #e0ddd5;
+    --text: #1a1916; --muted: #7a7870; --accent: #1a1916;
+    --radius: 14px; --btn-h: 52px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    background: var(--bg); font-family: -apple-system, 'SF Pro Text', sans-serif;
+    color: var(--text); min-height: 100vh;
+    padding: env(safe-area-inset-top, 16px) 16px env(safe-area-inset-bottom, 24px);
+  }
+  header { padding: 18px 0 14px; display: flex; align-items: baseline; gap: 10px; }
+  header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+  header span { font-size: 11px; color: var(--muted); background: var(--border); padding: 3px 8px; border-radius: 20px; font-weight: 600; letter-spacing: 0.04em; }
+  .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 16px; }
+  .tab-btn { height: 42px; border-radius: 10px; border: 1.5px solid var(--border); font-size: 14px; font-weight: 600; cursor: pointer; background: var(--surface); color: var(--muted); transition: all 0.15s; }
+  .tab-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); padding: 14px 14px 16px; margin-bottom: 10px; }
+  label { display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; }
+  input[type="text"], input[type="number"], input[type="date"] {
+    width: 100%; height: var(--btn-h); border: 1.5px solid var(--border); border-radius: 10px;
+    padding: 0 14px; font-size: 17px; background: var(--bg); color: var(--text);
+    outline: none; -webkit-appearance: none; transition: border-color 0.15s;
+  }
+  input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus { border-color: var(--accent); background: #fff; }
+  input[type="date"] { font-size: 16px; }
+  .mono { font-family: 'SF Mono', 'Courier New', monospace !important; font-size: 18px !important; font-weight: 600 !important; letter-spacing: 0.04em !important; }
+  select {
+    width: 100%; height: var(--btn-h); border: 1.5px solid var(--border); border-radius: 10px;
+    padding: 0 36px 0 14px; font-size: 16px; background: var(--bg); color: var(--text);
+    outline: none; -webkit-appearance: none; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a7870' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 14px center;
+  }
+  .preview-code {
+    background: var(--bg); border: 1.5px solid var(--border); border-radius: 10px;
+    padding: 12px 14px; font-family: 'SF Mono', 'Courier New', monospace;
+    font-size: 14px; font-weight: 700; letter-spacing: 0.06em; color: var(--text);
+    word-break: break-all; min-height: 44px; display: flex; align-items: center;
+  }
+  .preview-label { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; }
+  .generate-btn {
+    width: 100%; height: var(--btn-h); background: var(--accent); color: #fff; border: none;
+    border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer;
+    margin-top: 4px; transition: opacity 0.15s, transform 0.1s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .generate-btn:active { opacity: 0.85; transform: scale(0.98); }
+  .bc-card {
+    background: #fff; border-radius: var(--radius); border: 1px solid var(--border);
+    padding: 20px 14px 16px; margin: 10px 0;
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+  }
+  .bc-card canvas { max-width: 100%; display: block; }
+  .bc-meta { font-size: 11px; color: var(--muted); text-align: center; font-weight: 500; }
+  .action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .sec-btn {
+    height: 46px; background: var(--bg); border: 1.5px solid var(--border); border-radius: 10px;
+    font-size: 14px; font-weight: 600; color: var(--text); cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .sec-btn:active { background: var(--border); }
+  .err { font-size: 13px; color: #c0392b; text-align: center; padding: 6px 0; min-height: 20px; font-weight: 500; }
+  .serie-row { display: flex; gap: 10px; align-items: flex-end; }
+  .serie-row input { flex: 1; }
+  .serie-inc {
+    height: var(--btn-h); min-width: 52px; background: var(--bg); border: 1.5px solid var(--border);
+    border-radius: 10px; font-size: 22px; color: var(--text); cursor: pointer;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .serie-inc:active { background: var(--border); }
+  .hint-pills { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 8px; }
+  .hint-pill {
+    font-size: 12px; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 20px; padding: 4px 10px; color: var(--muted);
+    font-family: 'SF Mono', monospace; cursor: pointer; font-weight: 500;
+  }
+  .hint-pill:active { background: var(--border); }
+  .fullscreen-overlay {
+    display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: #fff; z-index: 999;
+    flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 20px;
+  }
+  .fullscreen-overlay.active { display: flex; }
+  .fullscreen-overlay canvas { max-width: 100%; max-height: 65vh; }
+  .close-fs { position: absolute; top: env(safe-area-inset-top, 20px); right: 20px; font-size: 28px; color: #aaa; cursor: pointer; background: none; border: none; padding: 8px; line-height: 1; }
+  .fs-meta { font-size: 13px; color: #aaa; font-weight: 500; letter-spacing: 0.04em; text-align: center; }
+  .footer-note { font-size: 11px; color: var(--muted); text-align: center; padding: 8px 0 4px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: #27ae60; display: inline-block; }
+  .field-block { display: none; }
+  .field-block.visible { display: block; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Códigos de Barras</h1>
+  <span>HONEYWELL</span>
+</header>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('tickets')">Tickets DC</button>
+  <button class="tab-btn" onclick="switchTab('libre')">Código libre</button>
+</div>
+
+<!-- PANEL TICKETS -->
+<div class="panel active" id="panel-tickets">
+
+  <div class="card">
+    <label>Tipo de ticket</label>
+    <select id="tkTipo" onchange="onTipoChange()">
+      <option value="C02">C02 — Crossdocking Colectivo</option>
+      <option value="LE0">LE0 — Orden de entrega</option>
+    </select>
+  </div>
+
+  <!-- Campos C02 -->
+  <div class="field-block visible" id="bloque-c02">
+    <div class="card">
+      <label>Número de tienda</label>
+      <input type="number" id="tkTienda" placeholder="Ej: 811" inputmode="numeric" min="1" max="9999" oninput="updatePreview()" />
+    </div>
+    <div class="card">
+      <label>Fecha del ticket</label>
+      <input type="date" id="tkFecha" onchange="updatePreview()" oninput="updatePreview()" />
+    </div>
+  </div>
+
+  <!-- Campo LE0 -->
+  <div class="field-block" id="bloque-le0">
+    <div class="card">
+      <label>Número de orden</label>
+      <input class="mono" type="text" id="tkOrden" placeholder="Ej: 4117037419" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false" oninput="updatePreview()" />
+    </div>
+  </div>
+
+  <!-- Serie (siempre visible) -->
+  <div class="card">
+    <label>Serie</label>
+    <div class="serie-row">
+      <input type="number" id="tkSerie" placeholder="001" inputmode="numeric" min="1" max="999" value="1" oninput="updatePreview()" />
+      <button class="serie-inc" onclick="incrementSerie()" title="Siguiente serie">+1</button>
+    </div>
+  </div>
+
+  <div class="card" style="padding-bottom:14px;">
+    <div class="preview-label">Código que se generará</div>
+    <div class="preview-code" id="tkPreview">—</div>
+  </div>
+
+  <button class="generate-btn" onclick="generateTicket()">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="3" width="4" height="18"/><rect x="9" y="3" width="2" height="18"/><rect x="14" y="3" width="4" height="18"/><rect x="21" y="3" width="1" height="18"/></svg>
+    Generar código de barras
+  </button>
+
+  <div class="err" id="tkErr"></div>
+
+  <div class="bc-card" id="tkBcCard">
+    <canvas id="tkBc"></canvas>
+    <div class="bc-meta" id="tkBcMeta"></div>
+  </div>
+
+  <div class="action-row">
+    <button class="sec-btn" onclick="showFullscreen('tkBc', document.getElementById('tkBcMeta').textContent)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+      Pantalla completa
+    </button>
+    <button class="sec-btn" onclick="downloadPNG('tkBc', 'ticket')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Descargar PNG
+    </button>
+  </div>
+
+</div>
+
+<!-- PANEL LIBRE -->
+<div class="panel" id="panel-libre">
+
+  <div class="card">
+    <label>Tipo de código</label>
+    <select id="bcType" onchange="onBcTypeChange()">
+      <option value="CODE128" selected>Code 128 — recomendado Honeywell</option>
+      <option value="CODE39">Code 39</option>
+      <option value="GS1-128">GS1-128 / EAN-128</option>
+      <option value="EAN13">EAN-13</option>
+      <option value="EAN8">EAN-8</option>
+      <option value="UPCA">UPC-A</option>
+      <option value="ITF14">ITF-14</option>
+      <option value="MSI">MSI Plessey</option>
+    </select>
+  </div>
+
+  <div class="card">
+    <label>Valor del código</label>
+    <input class="mono" type="text" id="bcValue" placeholder="Escribe o pega aquí…" value="1234567890128" autocomplete="off" autocorrect="off" spellcheck="false" />
+    <div class="hint-pills" id="hintPills"></div>
+  </div>
+
+  <button class="generate-btn" onclick="generateLibre()">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="3" width="4" height="18"/><rect x="9" y="3" width="2" height="18"/><rect x="14" y="3" width="4" height="18"/><rect x="21" y="3" width="1" height="18"/></svg>
+    Generar código
+  </button>
+
+  <div class="err" id="bcErr"></div>
+
+  <div class="bc-card">
+    <canvas id="bc"></canvas>
+    <div class="bc-meta" id="bcMeta"></div>
+  </div>
+
+  <div class="action-row">
+    <button class="sec-btn" onclick="showFullscreen('bc', document.getElementById('bcMeta').textContent)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+      Pantalla completa
+    </button>
+    <button class="sec-btn" onclick="downloadPNG('bc', 'barcode')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Descargar PNG
+    </button>
+  </div>
+
+</div>
+
+<div class="footer-note">
+  <span class="dot"></span>
+  Optimizado para Honeywell · Code 128
+</div>
+
+<div class="fullscreen-overlay" id="fsOverlay">
+  <button class="close-fs" onclick="closeFullscreen()">&#x2715;</button>
+  <canvas id="bcFull"></canvas>
+  <div class="fs-meta" id="fsMeta"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+<script>
+function pad(n, len) { return String(n).padStart(len, '0'); }
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', (i===0&&tab==='tickets')||(i===1&&tab==='libre')));
+  document.getElementById('panel-tickets').classList.toggle('active', tab==='tickets');
+  document.getElementById('panel-libre').classList.toggle('active', tab==='libre');
+}
+
+function onTipoChange() {
+  const tipo = document.getElementById('tkTipo').value;
+  document.getElementById('bloque-c02').classList.toggle('visible', tipo === 'C02');
+  document.getElementById('bloque-le0').classList.toggle('visible', tipo === 'LE0');
+  updatePreview();
+}
+
+function buildTicketCode() {
+  const tipo = document.getElementById('tkTipo').value;
+  const serie = document.getElementById('tkSerie').value.trim();
+  if (!serie) return null;
+  const serieNum = pad(parseInt(serie) || 1, 3);
+
+  if (tipo === 'C02') {
+    const tienda = document.getElementById('tkTienda').value.trim();
+    const fecha = document.getElementById('tkFecha').value;
+    if (!tienda || !fecha) return null;
+    const [yyyy, mm, dd] = fecha.split('-');
+    return 'C02' + '0' + pad(parseInt(tienda), 3) + yyyy.slice(-2) + mm + dd + serieNum;
+  } else {
+    const orden = document.getElementById('tkOrden').value.trim();
+    if (!orden) return null;
+    return 'LE0' + orden + serieNum;
+  }
+}
+
+function updatePreview() {
+  const code = buildTicketCode();
+  document.getElementById('tkPreview').textContent = code || '—';
+}
+
+function incrementSerie() {
+  const el = document.getElementById('tkSerie');
+  el.value = (parseInt(el.value) || 0) + 1;
+  updatePreview();
+  if (document.getElementById('tkBc').width) generateTicket();
+}
+
+function generateTicket() {
+  const errEl = document.getElementById('tkErr');
+  errEl.textContent = '';
+  const tipo = document.getElementById('tkTipo').value;
+  const serie = document.getElementById('tkSerie').value.trim();
+
+  if (tipo === 'C02') {
+    if (!document.getElementById('tkTienda').value.trim()) { errEl.textContent = 'Ingresa el número de tienda.'; return; }
+    if (!document.getElementById('tkFecha').value) { errEl.textContent = 'Selecciona la fecha del ticket.'; return; }
+  } else {
+    if (!document.getElementById('tkOrden').value.trim()) { errEl.textContent = 'Ingresa el número de orden.'; return; }
+  }
+  if (!serie) { errEl.textContent = 'Ingresa la serie.'; return; }
+
+  const code = buildTicketCode();
+  if (!code) { errEl.textContent = 'Datos incompletos.'; return; }
+
+  try {
+    JsBarcode(document.getElementById('tkBc'), code, {
+      format: 'CODE128', lineColor: '#000000', background: '#ffffff',
+      width: 3, height: 100, displayValue: true,
+      fontSize: 13, fontOptions: '600', font: 'monospace', margin: 14,
+    });
+    let metaStr = '';
+    if (tipo === 'C02') {
+      const fecha = document.getElementById('tkFecha').value;
+      const [yyyy,mm,dd] = fecha.split('-');
+      metaStr = 'C02 · Tienda ' + document.getElementById('tkTienda').value.trim() + ' · ' + dd + '/' + mm + '/' + yyyy + ' · Serie ' + pad(parseInt(serie),3);
+    } else {
+      metaStr = 'LE0 · Orden ' + document.getElementById('tkOrden').value.trim() + ' · Serie ' + pad(parseInt(serie),3);
+    }
+    document.getElementById('tkBcMeta').textContent = metaStr;
+  } catch(e) {
+    errEl.textContent = 'Error generando el código.';
+  }
+}
+
+// LIBRE
+const hints = {
+  'CODE128': ['1234567890128','ABC-2025','SN-00123'],
+  'CODE39': ['ITEM-001','PROD-XYZ'],
+  'GS1-128': ['00123456789012345675'],
+  'EAN13': ['5901234123457'],
+  'EAN8': ['96385074'],
+  'UPCA': ['012345678905'],
+  'ITF14': ['10012345678902'],
+  'MSI': ['12345']
+};
+
+function renderHints() {
+  const type = document.getElementById('bcType').value;
+  const pills = document.getElementById('hintPills');
+  pills.innerHTML = '';
+  (hints[type]||[]).forEach(v => {
+    const p = document.createElement('span');
+    p.className = 'hint-pill'; p.textContent = v;
+    p.onclick = () => { document.getElementById('bcValue').value = v; generateLibre(); };
+    pills.appendChild(p);
+  });
+}
+
+function onBcTypeChange() {
+  const h = hints[document.getElementById('bcType').value];
+  if (h) document.getElementById('bcValue').value = h[0];
+  renderHints(); generateLibre();
+}
+
+document.getElementById('bcValue').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') { this.blur(); generateLibre(); }
+});
+
+function generateLibre() {
+  const val = document.getElementById('bcValue').value.trim();
+  const type = document.getElementById('bcType').value;
+  const errEl = document.getElementById('bcErr');
+  errEl.textContent = '';
+  if (!val) { errEl.textContent = 'Ingresa un valor.'; return; }
+  try {
+    JsBarcode(document.getElementById('bc'), val, {
+      format: type, lineColor: '#000000', background: '#ffffff',
+      width: 3, height: 100, displayValue: true,
+      fontSize: 13, fontOptions: '600', margin: 14,
+    });
+    document.getElementById('bcMeta').textContent = type + ' — ' + val;
+  } catch(e) {
+    errEl.textContent = 'Valor incompatible con ' + type + '.';
+  }
+}
+
+// SHARED
+function showFullscreen(canvasId, meta) {
+  const src = document.getElementById(canvasId);
+  if (!src || !src.width) return;
+  const fsCanvas = document.getElementById('bcFull');
+  const img = new Image();
+  img.onload = () => {
+    fsCanvas.width = img.width * 2; fsCanvas.height = img.height * 2;
+    fsCanvas.style.maxWidth = '100%'; fsCanvas.style.maxHeight = '65vh';
+    fsCanvas.getContext('2d').drawImage(img, 0, 0, fsCanvas.width, fsCanvas.height);
+  };
+  img.src = src.toDataURL();
+  document.getElementById('fsMeta').textContent = meta || '';
+  document.getElementById('fsOverlay').classList.add('active');
+  if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(()=>{});
+}
+
+function closeFullscreen() {
+  document.getElementById('fsOverlay').classList.remove('active');
+  if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock();
+}
+
+function downloadPNG(canvasId, prefix) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas || !canvas.width) return;
+  const link = document.createElement('a');
+  link.download = prefix + '_' + Date.now() + '.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+}
+
+window.addEventListener('load', () => {
+  const today = new Date();
+  document.getElementById('tkFecha').value = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
+  updatePreview();
+  renderHints();
+  generateLibre();
+});
+</script>
+</body>
+</html>
