@@ -6,188 +6,216 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Tickets DC">
-<title>Generador — Tickets y Códigos</title>
+<title>Tickets DC</title>
 <style>
-  :root {
-    --bg: #f5f4f0; --surface: #ffffff; --border: #e0ddd5;
-    --text: #1a1916; --muted: #7a7870; --accent: #1a1916;
-    --radius: 14px; --btn-h: 52px;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  body {
-    background: var(--bg); font-family: -apple-system, 'SF Pro Text', sans-serif;
-    color: var(--text); min-height: 100vh;
-    padding: env(safe-area-inset-top, 16px) 16px env(safe-area-inset-bottom, 24px);
-  }
-  header { padding: 18px 0 14px; display: flex; align-items: baseline; gap: 10px; }
-  header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
-  header span { font-size: 11px; color: var(--muted); background: var(--border); padding: 3px 8px; border-radius: 20px; font-weight: 600; letter-spacing: 0.04em; }
-  .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 16px; }
-  .tab-btn { height: 42px; border-radius: 10px; border: 1.5px solid var(--border); font-size: 14px; font-weight: 600; cursor: pointer; background: var(--surface); color: var(--muted); transition: all 0.15s; }
-  .tab-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
-  .panel { display: none; }
-  .panel.active { display: block; }
-  .card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); padding: 14px 14px 16px; margin-bottom: 10px; }
-  label { display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; }
-  input[type="text"], input[type="number"], input[type="date"] {
-    width: 100%; height: var(--btn-h); border: 1.5px solid var(--border); border-radius: 10px;
-    padding: 0 14px; font-size: 17px; background: var(--bg); color: var(--text);
-    outline: none; -webkit-appearance: none; transition: border-color 0.15s;
-  }
-  input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus { border-color: var(--accent); background: #fff; }
-  input[type="date"] { font-size: 16px; }
-  .mono { font-family: 'SF Mono', 'Courier New', monospace !important; font-size: 18px !important; font-weight: 600 !important; letter-spacing: 0.04em !important; }
-  select {
-    width: 100%; height: var(--btn-h); border: 1.5px solid var(--border); border-radius: 10px;
-    padding: 0 36px 0 14px; font-size: 16px; background: var(--bg); color: var(--text);
-    outline: none; -webkit-appearance: none; appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a7870' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-    background-repeat: no-repeat; background-position: right 14px center;
-  }
-  .preview-code {
-    background: var(--bg); border: 1.5px solid var(--border); border-radius: 10px;
-    padding: 12px 14px; font-family: 'SF Mono', 'Courier New', monospace;
-    font-size: 14px; font-weight: 700; letter-spacing: 0.06em; color: var(--text);
-    word-break: break-all; min-height: 44px; display: flex; align-items: center;
-  }
-  .preview-label { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; }
-  .generate-btn {
-    width: 100%; height: var(--btn-h); background: var(--accent); color: #fff; border: none;
-    border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer;
-    margin-top: 4px; transition: opacity 0.15s, transform 0.1s;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-  }
-  .generate-btn:active { opacity: 0.85; transform: scale(0.98); }
-  .bc-card {
-    background: #fff; border-radius: var(--radius); border: 1px solid var(--border);
-    padding: 20px 14px 16px; margin: 10px 0;
-    display: flex; flex-direction: column; align-items: center; gap: 10px;
-  }
-  .bc-card canvas { max-width: 100%; display: block; }
-  .bc-meta { font-size: 11px; color: var(--muted); text-align: center; font-weight: 500; }
-  .action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-  .sec-btn {
-    height: 46px; background: var(--bg); border: 1.5px solid var(--border); border-radius: 10px;
-    font-size: 14px; font-weight: 600; color: var(--text); cursor: pointer;
-    display: flex; align-items: center; justify-content: center; gap: 6px;
-  }
-  .sec-btn:active { background: var(--border); }
-  .err { font-size: 13px; color: #c0392b; text-align: center; padding: 6px 0; min-height: 20px; font-weight: 500; }
-  .serie-row { display: flex; gap: 10px; align-items: flex-end; }
-  .serie-row input { flex: 1; }
-  .serie-inc {
-    height: var(--btn-h); min-width: 52px; background: var(--bg); border: 1.5px solid var(--border);
-    border-radius: 10px; font-size: 22px; color: var(--text); cursor: pointer;
-    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-  }
-  .serie-inc:active { background: var(--border); }
-  .hint-pills { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 8px; }
-  .hint-pill {
-    font-size: 12px; background: var(--bg); border: 1px solid var(--border);
-    border-radius: 20px; padding: 4px 10px; color: var(--muted);
-    font-family: 'SF Mono', monospace; cursor: pointer; font-weight: 500;
-  }
-  .hint-pill:active { background: var(--border); }
-  .fullscreen-overlay {
-    display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-    background: #fff; z-index: 999;
-    flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 20px;
-  }
-  .fullscreen-overlay.active { display: flex; }
-  .fullscreen-overlay canvas { max-width: 100%; max-height: 65vh; }
-  .close-fs { position: absolute; top: env(safe-area-inset-top, 20px); right: 20px; font-size: 28px; color: #aaa; cursor: pointer; background: none; border: none; padding: 8px; line-height: 1; }
-  .fs-meta { font-size: 13px; color: #aaa; font-weight: 500; letter-spacing: 0.04em; text-align: center; }
-  .footer-note { font-size: 11px; color: var(--muted); text-align: center; padding: 8px 0 4px; display: flex; align-items: center; justify-content: center; gap: 6px; }
-  .dot { width: 6px; height: 6px; border-radius: 50%; background: #27ae60; display: inline-block; }
-  .field-block { display: none; }
-  .field-block.visible { display: block; }
+:root {
+  --bg: #0e0e0f; --surface: #1a1a1c; --surface2: #242426;
+  --border: #2e2e32; --text: #f0f0f0; --muted: #888890;
+  --accent: #f0f0f0; --accent-text: #0e0e0f;
+  --green: #30d158; --red: #ff453a; --yellow: #ffd60a;
+  --blue: #0a84ff; --orange: #ff9f0a;
+  --radius: 14px; --btn-h: 52px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { background: var(--bg); font-family: -apple-system, 'SF Pro Text', sans-serif; color: var(--text); min-height: 100vh; padding: env(safe-area-inset-top,16px) 16px env(safe-area-inset-bottom,24px); }
+
+/* HEADER */
+header { padding: 20px 0 14px; display: flex; align-items: center; justify-content: space-between; }
+header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+.hbadge { font-size: 11px; color: var(--muted); background: var(--surface2); padding: 3px 9px; border-radius: 20px; font-weight: 600; border: 1px solid var(--border); }
+
+/* TABS */
+.tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 18px; }
+.tab-btn { height: 42px; border-radius: 10px; border: 1.5px solid var(--border); font-size: 14px; font-weight: 600; cursor: pointer; background: var(--surface); color: var(--muted); transition: all 0.15s; }
+.tab-btn.active { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* DATE BAR */
+.date-bar { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+.date-bar svg { flex-shrink: 0; color: var(--muted); }
+.date-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 2px; }
+.date-bar input[type="date"] { background: none; border: none; color: var(--text); font-size: 16px; font-weight: 600; outline: none; -webkit-appearance: none; color-scheme: dark; width: 100%; }
+
+/* SERIE GLOBAL */
+.serie-bar { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.serie-bar-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.serie-controls { display: flex; align-items: center; gap: 10px; }
+.serie-ctrl-btn { width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.serie-ctrl-btn:active { background: var(--border); }
+.serie-val { font-size: 22px; font-weight: 800; font-family: 'SF Mono', monospace; color: var(--yellow); min-width: 48px; text-align: center; }
+
+/* SECTION HEADERS */
+.sec-header { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 16px 0 8px; padding: 0 2px; display: flex; align-items: center; justify-content: space-between; }
+.sec-count { font-size: 11px; font-weight: 600; color: var(--muted); background: var(--surface2); padding: 2px 8px; border-radius: 20px; }
+
+/* TIENDA ITEMS */
+.tienda-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 0; margin-bottom: 8px; overflow: hidden; cursor: pointer; transition: background 0.12s; }
+.tienda-item:active { background: var(--surface2); }
+.tienda-main { display: flex; align-items: center; padding: 14px; gap: 12px; }
+.tienda-num { font-size: 20px; font-weight: 800; color: var(--text); min-width: 44px; }
+.tienda-code { font-family: 'SF Mono', monospace; font-size: 11px; color: var(--muted); margin-top: 2px; letter-spacing: 0.04em; }
+.tienda-arrow { color: var(--muted); margin-left: auto; flex-shrink: 0; }
+
+/* OVERLAY */
+.overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg); z-index: 99; overflow-y: auto; padding: env(safe-area-inset-top,16px) 16px env(safe-area-inset-bottom,24px); }
+.overlay.active { display: block; }
+.back-btn { display: flex; align-items: center; gap: 8px; color: var(--blue); font-size: 16px; font-weight: 500; background: none; border: none; cursor: pointer; padding: 4px 0 20px; }
+
+/* TIENDA HEADER EN OVERLAY */
+.ov-tienda-header { margin-bottom: 20px; }
+.ov-tienda-num { font-size: 42px; font-weight: 900; letter-spacing: -1px; line-height: 1; }
+.ov-tienda-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-top: 4px; }
+
+/* SERIE POR TIENDA */
+.ov-serie-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; }
+.ov-serie-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.ov-serie-controls { display: flex; align-items: center; gap: 10px; }
+
+/* STEP LABELS */
+.step-label { font-size: 11px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--blue); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+
+/* BARCODE CARD */
+.bc-card { background: #fff; border-radius: var(--radius); padding: 18px 14px 14px; margin-bottom: 14px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.bc-card canvas { max-width: 100%; display: block; }
+.bc-card-meta { font-size: 11px; color: #666; text-align: center; font-weight: 500; font-family: monospace; }
+.bc-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; }
+.bc-action-btn { height: 40px; background: #f5f4f0; border: 1px solid #e0ddd5; border-radius: 10px; font-size: 13px; font-weight: 600; color: #1a1916; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.bc-action-btn:active { background: #e0ddd5; }
+
+/* ANDENES */
+.anden-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.anden-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 16px 8px; border-radius: 14px; border: 2px solid var(--border); background: var(--surface); cursor: pointer; transition: all 0.15s; color: var(--text); }
+.anden-btn:active { transform: scale(0.95); }
+.anden-btn.selected { border-color: var(--blue); background: rgba(10,132,255,0.1); }
+.anden-icon { font-size: 28px; }
+.anden-name { font-size: 17px; font-weight: 800; }
+.anden-sub { font-size: 10px; color: var(--muted); font-weight: 500; }
+.anden-btn.selected .anden-sub { color: var(--blue); }
+
+/* LIBRE */
+.card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); padding: 14px; margin-bottom: 10px; }
+label { display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; }
+input[type="text"], select { width: 100%; height: var(--btn-h); border: 1px solid var(--border); border-radius: 10px; padding: 0 14px; font-size: 16px; background: var(--surface2); color: var(--text); outline: none; -webkit-appearance: none; color-scheme: dark; font-family: inherit; transition: border-color 0.15s; }
+input[type="text"]:focus, select:focus { border-color: var(--blue); }
+select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888890' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+.mono-input { font-family: 'SF Mono', monospace !important; font-size: 18px !important; font-weight: 600 !important; }
+.generate-btn { width: 100%; height: var(--btn-h); background: var(--accent); color: var(--accent-text); border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 4px; transition: opacity 0.15s, transform 0.1s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.generate-btn:active { opacity: 0.8; transform: scale(0.98); }
+.hint-pills { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 8px; }
+.hint-pill { font-size: 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: 4px 10px; color: var(--muted); font-family: 'SF Mono', monospace; cursor: pointer; font-weight: 500; }
+.hint-pill:active { background: var(--border); }
+.err { font-size: 13px; color: var(--red); text-align: center; padding: 6px 0; min-height: 20px; }
+
+/* LE0 MODULE */
+.le0-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; margin-bottom: 10px; }
+.le0-input { width: 100%; height: var(--btn-h); border: 1px solid var(--border); border-radius: 10px; padding: 0 14px; font-size: 20px; font-weight: 700; font-family: 'SF Mono', monospace; background: var(--surface2); color: var(--text); outline: none; -webkit-appearance: none; color-scheme: dark; letter-spacing: 0.04em; }
+.le0-input:focus { border-color: var(--blue); }
+.le0-preview { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; font-family: 'SF Mono', monospace; font-size: 13px; font-weight: 700; letter-spacing: 0.06em; color: var(--yellow); word-break: break-all; min-height: 42px; display: flex; align-items: center; margin-top: 10px; }
+.serie-row { display: flex; gap: 8px; }
+.serie-row input { flex: 1; height: var(--btn-h); border: 1px solid var(--border); border-radius: 10px; padding: 0 14px; font-size: 18px; font-weight: 700; font-family: 'SF Mono', monospace; background: var(--surface2); color: var(--text); outline: none; -webkit-appearance: none; color-scheme: dark; }
+.serie-inc-btn { height: var(--btn-h); min-width: 52px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; font-size: 22px; color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.serie-inc-btn:active { background: var(--border); }
+
+/* FULLSCREEN */
+.fs-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #000; z-index: 999; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 20px; }
+.fs-overlay.active { display: flex; }
+.fs-overlay canvas { max-width: 100%; max-height: 65vh; border-radius: 8px; }
+.fs-close { position: absolute; top: env(safe-area-inset-top,20px); right: 20px; font-size: 28px; color: #555; cursor: pointer; background: none; border: none; padding: 8px; line-height: 1; }
+.fs-meta { font-size: 12px; color: #555; font-weight: 500; text-align: center; letter-spacing: 0.04em; }
+
+.footer-note { font-size: 11px; color: var(--muted); text-align: center; padding: 14px 0 6px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); display: inline-block; }
 </style>
 </head>
 <body>
 
 <header>
-  <h1>Códigos de Barras</h1>
-  <span>HONEYWELL</span>
+  <h1>Tickets DC</h1>
+  <span class="hbadge">HONEYWELL</span>
 </header>
 
 <div class="tabs">
-  <button class="tab-btn active" onclick="switchTab('tickets')">Tickets DC</button>
-  <button class="tab-btn" onclick="switchTab('libre')">Código libre</button>
+  <button class="tab-btn active" onclick="switchTab('cierre')">📦 C02 · Cierre</button>
+  <button class="tab-btn" onclick="switchTab('libre')">🔢 LE0 · Libre</button>
 </div>
 
-<!-- PANEL TICKETS -->
-<div class="panel active" id="panel-tickets">
+<!-- ======= PANEL C02 + CIERRE ======= -->
+<div class="panel active" id="panel-cierre">
 
-  <div class="card">
-    <label>Tipo de ticket</label>
-    <select id="tkTipo" onchange="onTipoChange()">
-      <option value="C02">C02 — Crossdocking Colectivo</option>
-      <option value="LE0">LE0 — Orden de entrega</option>
-    </select>
-  </div>
-
-  <!-- Campos C02 -->
-  <div class="field-block visible" id="bloque-c02">
-    <div class="card">
-      <label>Número de tienda</label>
-      <input type="number" id="tkTienda" placeholder="Ej: 811" inputmode="numeric" min="1" max="9999" oninput="updatePreview()" />
-    </div>
-    <div class="card">
-      <label>Fecha del ticket</label>
-      <input type="date" id="tkFecha" onchange="updatePreview()" oninput="updatePreview()" />
+  <!-- FECHA -->
+  <div class="date-bar">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    <div style="flex:1;">
+      <div class="date-label">Fecha del día</div>
+      <input type="date" id="cpFecha" onchange="renderTiendas()" />
     </div>
   </div>
 
-  <!-- Campo LE0 -->
-  <div class="field-block" id="bloque-le0">
-    <div class="card">
-      <label>Número de orden</label>
-      <input class="mono" type="text" id="tkOrden" placeholder="Ej: 4117037419" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false" oninput="updatePreview()" />
+  <!-- SERIE GLOBAL -->
+  <div class="serie-bar">
+    <div>
+      <div class="serie-bar-label">Serie global</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:2px;">Para todas las tiendas</div>
+    </div>
+    <div class="serie-controls">
+      <button class="serie-ctrl-btn" onclick="adjustGlobalSerie(-1)">−</button>
+      <div class="serie-val" id="globalSerieVal">001</div>
+      <button class="serie-ctrl-btn" onclick="adjustGlobalSerie(1)">+</button>
     </div>
   </div>
 
-  <!-- Serie (siempre visible) -->
-  <div class="card">
-    <label>Serie</label>
-    <div class="serie-row">
-      <input type="number" id="tkSerie" placeholder="001" inputmode="numeric" min="1" max="999" value="1" oninput="updatePreview()" />
-      <button class="serie-inc" onclick="incrementSerie()" title="Siguiente serie">+1</button>
-    </div>
-  </div>
+  <!-- LISTA -->
+  <div id="tiendaList"></div>
 
-  <div class="card" style="padding-bottom:14px;">
-    <div class="preview-label">Código que se generará</div>
-    <div class="preview-code" id="tkPreview">—</div>
-  </div>
-
-  <button class="generate-btn" onclick="generateTicket()">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="3" width="4" height="18"/><rect x="9" y="3" width="2" height="18"/><rect x="14" y="3" width="4" height="18"/><rect x="21" y="3" width="1" height="18"/></svg>
-    Generar código de barras
-  </button>
-
-  <div class="err" id="tkErr"></div>
-
-  <div class="bc-card" id="tkBcCard">
-    <canvas id="tkBc"></canvas>
-    <div class="bc-meta" id="tkBcMeta"></div>
-  </div>
-
-  <div class="action-row">
-    <button class="sec-btn" onclick="showFullscreen('tkBc', document.getElementById('tkBcMeta').textContent)">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
-      Pantalla completa
-    </button>
-    <button class="sec-btn" onclick="downloadPNG('tkBc', 'ticket')">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      Descargar PNG
-    </button>
-  </div>
-
+  <div class="footer-note"><span class="dot"></span> 50 tiendas · C02 · Honeywell</div>
 </div>
 
-<!-- PANEL LIBRE -->
+<!-- ======= PANEL LE0 + LIBRE ======= -->
 <div class="panel" id="panel-libre">
 
+  <!-- LE0 -->
+  <div style="font-size:13px;font-weight:600;color:var(--muted);margin-bottom:12px;">Orden de entrega (LE0)</div>
+  <div class="le0-card">
+    <label>Número de orden</label>
+    <input class="le0-input" type="text" id="le0Orden" placeholder="Ej: 4117037419" inputmode="numeric" autocomplete="off" spellcheck="false" oninput="updateLE0Preview()" />
+  </div>
+  <div class="le0-card">
+    <label>Serie</label>
+    <div class="serie-row">
+      <input type="number" id="le0Serie" value="1" min="1" max="999" inputmode="numeric" oninput="updateLE0Preview()" />
+      <button class="serie-inc-btn" onclick="incrementLE0Serie()">+1</button>
+    </div>
+  </div>
+  <div class="le0-card">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-bottom:6px;">Código que se generará</div>
+    <div class="le0-preview" id="le0Preview">—</div>
+  </div>
+  <button class="generate-btn" onclick="generateLE0()">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="3" width="4" height="18"/><rect x="9" y="3" width="2" height="18"/><rect x="14" y="3" width="4" height="18"/><rect x="21" y="3" width="1" height="18"/></svg>
+    Generar LE0
+  </button>
+  <div class="err" id="le0Err"></div>
+  <div class="bc-card" id="le0BcCard" style="margin:12px 0;">
+    <canvas id="le0Bc"></canvas>
+    <div class="bc-card-meta" id="le0BcMeta"></div>
+    <div class="bc-actions">
+      <button class="bc-action-btn" onclick="showFS('le0Bc', document.getElementById('le0BcMeta').textContent)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+        Pantalla completa
+      </button>
+      <button class="bc-action-btn" onclick="dlPNG('le0Bc','le0')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Descargar
+      </button>
+    </div>
+  </div>
+
+  <div style="height:1px;background:var(--border);margin:6px 0 18px;"></div>
+
+  <!-- CÓDIGO LIBRE -->
+  <div style="font-size:13px;font-weight:600;color:var(--muted);margin-bottom:12px;">Código libre</div>
   <div class="card">
     <label>Tipo de código</label>
     <select id="bcType" onchange="onBcTypeChange()">
@@ -201,224 +229,355 @@
       <option value="MSI">MSI Plessey</option>
     </select>
   </div>
-
   <div class="card">
-    <label>Valor del código</label>
-    <input class="mono" type="text" id="bcValue" placeholder="Escribe o pega aquí…" value="1234567890128" autocomplete="off" autocorrect="off" spellcheck="false" />
+    <label>Valor</label>
+    <input class="mono-input" type="text" id="bcValue" placeholder="Escribe o pega aquí…" value="1234567890128" autocomplete="off" spellcheck="false" />
     <div class="hint-pills" id="hintPills"></div>
   </div>
-
   <button class="generate-btn" onclick="generateLibre()">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="3" width="4" height="18"/><rect x="9" y="3" width="2" height="18"/><rect x="14" y="3" width="4" height="18"/><rect x="21" y="3" width="1" height="18"/></svg>
     Generar código
   </button>
-
   <div class="err" id="bcErr"></div>
-
-  <div class="bc-card">
+  <div class="bc-card" style="margin:12px 0;">
     <canvas id="bc"></canvas>
-    <div class="bc-meta" id="bcMeta"></div>
+    <div class="bc-card-meta" id="bcMeta"></div>
+    <div class="bc-actions">
+      <button class="bc-action-btn" onclick="showFS('bc', document.getElementById('bcMeta').textContent)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+        Pantalla completa
+      </button>
+      <button class="bc-action-btn" onclick="dlPNG('bc','barcode')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Descargar
+      </button>
+    </div>
   </div>
-
-  <div class="action-row">
-    <button class="sec-btn" onclick="showFullscreen('bc', document.getElementById('bcMeta').textContent)">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
-      Pantalla completa
-    </button>
-    <button class="sec-btn" onclick="downloadPNG('bc', 'barcode')">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      Descargar PNG
-    </button>
-  </div>
-
+  <div class="footer-note"><span class="dot"></span> Optimizado para Honeywell</div>
 </div>
 
-<div class="footer-note">
-  <span class="dot"></span>
-  Optimizado para Honeywell · Code 128
+<!-- ======= OVERLAY TIENDA ======= -->
+<div class="overlay" id="tiendaOverlay">
+  <button class="back-btn" onclick="closeOverlay()">
+    <svg width="10" height="16" viewBox="0 0 10 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 1 2 8 8 15"/></svg>
+    Todas las tiendas
+  </button>
+
+  <div class="ov-tienda-header">
+    <div class="ov-tienda-badge" id="ovBadge"></div>
+    <div class="ov-tienda-num" id="ovTitle"></div>
+  </div>
+
+  <!-- SERIE POR TIENDA -->
+  <div class="ov-serie-card">
+    <div>
+      <div class="ov-serie-label">Serie</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:2px;">Solo para esta tienda</div>
+    </div>
+    <div class="ov-serie-controls">
+      <button class="serie-ctrl-btn" onclick="adjustOvSerie(-1)">−</button>
+      <div class="serie-val" id="ovSerieVal">001</div>
+      <button class="serie-ctrl-btn" onclick="adjustOvSerie(1)">+</button>
+    </div>
+  </div>
+
+  <!-- PASO 1 -->
+  <div class="step-label">
+    <span class="step-num">1</span>
+    Escanea el código del palet
+  </div>
+  <div class="bc-card" style="margin-bottom:20px;">
+    <canvas id="ovBcPalet"></canvas>
+    <div class="bc-card-meta" id="ovBcPaletMeta"></div>
+    <div class="bc-actions">
+      <button class="bc-action-btn" onclick="showFS('ovBcPalet', document.getElementById('ovBcPaletMeta').textContent)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+        Pantalla completa
+      </button>
+      <button class="bc-action-btn" onclick="dlPNG('ovBcPalet','palet')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Descargar
+      </button>
+    </div>
+  </div>
+
+  <!-- DIVISOR -->
+  <div style="height:1px;background:var(--border);margin-bottom:20px;"></div>
+
+  <!-- PASO 2 -->
+  <div class="step-label">
+    <span class="step-num">2</span>
+    Selecciona el andén de cierre
+  </div>
+  <div class="anden-grid">
+    <button class="anden-btn" id="ov-anden-R01" onclick="selectAnden('R01')">
+      <span class="anden-icon">🚪</span>
+      <span class="anden-name">R01</span>
+      <span class="anden-sub">Andén 1</span>
+    </button>
+    <button class="anden-btn" id="ov-anden-R02" onclick="selectAnden('R02')">
+      <span class="anden-icon">🚪</span>
+      <span class="anden-name">R02</span>
+      <span class="anden-sub">Andén 2</span>
+    </button>
+    <button class="anden-btn" id="ov-anden-R03" onclick="selectAnden('R03')">
+      <span class="anden-icon">🚪</span>
+      <span class="anden-name">R03</span>
+      <span class="anden-sub">Andén 3</span>
+    </button>
+  </div>
+
+  <div class="bc-card" id="ovAndenCard" style="display:none;margin-bottom:20px;">
+    <canvas id="ovBcAnden"></canvas>
+    <div class="bc-card-meta" id="ovBcAndenMeta"></div>
+    <div class="bc-actions">
+      <button class="bc-action-btn" onclick="showFS('ovBcAnden', document.getElementById('ovBcAndenMeta').textContent)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+        Pantalla completa
+      </button>
+      <button class="bc-action-btn" onclick="dlPNG('ovBcAnden','anden')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Descargar
+      </button>
+    </div>
+  </div>
 </div>
 
-<div class="fullscreen-overlay" id="fsOverlay">
-  <button class="close-fs" onclick="closeFullscreen()">&#x2715;</button>
-  <canvas id="bcFull"></canvas>
+<!-- FULLSCREEN -->
+<div class="fs-overlay" id="fsOverlay">
+  <button class="fs-close" onclick="closeFS()">✕</button>
+  <canvas id="fsBc"></canvas>
   <div class="fs-meta" id="fsMeta"></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
 <script>
+const TIENDAS = [161,201,202,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220,221,222,223,224,801,802,803,804,805,806,807,808,809,810,811,812,813,814,815,816,901,902,903,904,906,907,908,909,910,911];
+const GRUPOS = [
+  { label: 'Tienda 161', items: [161] },
+  { label: 'Tiendas 201 – 224', items: TIENDAS.filter(t=>t>=201&&t<=224) },
+  { label: 'Tiendas 801 – 816', items: TIENDAS.filter(t=>t>=801&&t<=816) },
+  { label: 'Tiendas 901 – 911', items: TIENDAS.filter(t=>t>=901&&t<=911) },
+];
+
+let globalSerie = 1;
+let ovTienda = null;
+let ovSerie = 1;
+
 function pad(n, len) { return String(n).padStart(len, '0'); }
 
 function switchTab(tab) {
-  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', (i===0&&tab==='tickets')||(i===1&&tab==='libre')));
-  document.getElementById('panel-tickets').classList.toggle('active', tab==='tickets');
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', (i===0&&tab==='cierre')||(i===1&&tab==='libre')));
+  document.getElementById('panel-cierre').classList.toggle('active', tab==='cierre');
   document.getElementById('panel-libre').classList.toggle('active', tab==='libre');
 }
 
-function onTipoChange() {
-  const tipo = document.getElementById('tkTipo').value;
-  document.getElementById('bloque-c02').classList.toggle('visible', tipo === 'C02');
-  document.getElementById('bloque-le0').classList.toggle('visible', tipo === 'LE0');
-  updatePreview();
+// ---- SERIE GLOBAL ----
+function adjustGlobalSerie(d) {
+  globalSerie = Math.max(1, Math.min(999, globalSerie + d));
+  document.getElementById('globalSerieVal').textContent = pad(globalSerie, 3);
+  renderTiendas();
 }
 
-function buildTicketCode() {
-  const tipo = document.getElementById('tkTipo').value;
-  const serie = document.getElementById('tkSerie').value.trim();
-  if (!serie) return null;
-  const serieNum = pad(parseInt(serie) || 1, 3);
+// ---- LISTA DE TIENDAS ----
+function buildC02(tienda, serie, fecha) {
+  const [yyyy,mm,dd] = fecha.split('-');
+  return 'C02' + '0' + pad(tienda,3) + yyyy.slice(-2) + mm + dd + pad(serie,3);
+}
 
-  if (tipo === 'C02') {
-    const tienda = document.getElementById('tkTienda').value.trim();
-    const fecha = document.getElementById('tkFecha').value;
-    if (!tienda || !fecha) return null;
-    const [yyyy, mm, dd] = fecha.split('-');
-    return 'C02' + '0' + pad(parseInt(tienda), 3) + yyyy.slice(-2) + mm + dd + serieNum;
-  } else {
-    const orden = document.getElementById('tkOrden').value.trim();
-    if (!orden) return null;
-    return 'LE0' + orden + serieNum;
+function renderTiendas() {
+  const fecha = document.getElementById('cpFecha').value;
+  const list = document.getElementById('tiendaList');
+  if (!fecha) {
+    list.innerHTML = '<div style="text-align:center;color:var(--muted);padding:30px 0;font-size:14px;">Selecciona una fecha para ver los C02</div>';
+    return;
   }
+  list.innerHTML = GRUPOS.map(g => `
+    <div class="sec-header">
+      <span>${g.label}</span>
+      <span class="sec-count">${g.items.length}</span>
+    </div>
+    ${g.items.map(t => {
+      const code = buildC02(t, globalSerie, fecha);
+      return `<div class="tienda-item" onclick="openTienda(${t})">
+        <div class="tienda-main">
+          <div style="flex:1;">
+            <div class="tienda-num">Tienda ${t}</div>
+            <div class="tienda-code">${code}</div>
+          </div>
+          <svg class="tienda-arrow" width="7" height="12" viewBox="0 0 7 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="1 1 6 6 1 11"/></svg>
+        </div>
+      </div>`;
+    }).join('')}
+  `).join('');
 }
 
-function updatePreview() {
-  const code = buildTicketCode();
-  document.getElementById('tkPreview').textContent = code || '—';
+// ---- OVERLAY ----
+function openTienda(t) {
+  ovTienda = t;
+  ovSerie = globalSerie;
+  document.getElementById('ovSerieVal').textContent = pad(ovSerie, 3);
+  document.getElementById('ovBadge').textContent = 'C02 · Serie ' + pad(ovSerie,3);
+  document.getElementById('ovTitle').textContent = 'Tienda ' + t;
+  ['R01','R02','R03'].forEach(r => document.getElementById('ov-anden-'+r).classList.remove('selected'));
+  document.getElementById('ovAndenCard').style.display = 'none';
+  generateOvPalet();
+  const ov = document.getElementById('tiendaOverlay');
+  ov.classList.add('active');
+  ov.scrollTop = 0;
 }
 
-function incrementSerie() {
-  const el = document.getElementById('tkSerie');
-  el.value = (parseInt(el.value) || 0) + 1;
-  updatePreview();
-  if (document.getElementById('tkBc').width) generateTicket();
+function closeOverlay() {
+  document.getElementById('tiendaOverlay').classList.remove('active');
 }
 
-function generateTicket() {
-  const errEl = document.getElementById('tkErr');
-  errEl.textContent = '';
-  const tipo = document.getElementById('tkTipo').value;
-  const serie = document.getElementById('tkSerie').value.trim();
+function adjustOvSerie(d) {
+  ovSerie = Math.max(1, Math.min(999, ovSerie + d));
+  document.getElementById('ovSerieVal').textContent = pad(ovSerie, 3);
+  document.getElementById('ovBadge').textContent = 'C02 · Serie ' + pad(ovSerie,3);
+  generateOvPalet();
+}
 
-  if (tipo === 'C02') {
-    if (!document.getElementById('tkTienda').value.trim()) { errEl.textContent = 'Ingresa el número de tienda.'; return; }
-    if (!document.getElementById('tkFecha').value) { errEl.textContent = 'Selecciona la fecha del ticket.'; return; }
-  } else {
-    if (!document.getElementById('tkOrden').value.trim()) { errEl.textContent = 'Ingresa el número de orden.'; return; }
-  }
-  if (!serie) { errEl.textContent = 'Ingresa la serie.'; return; }
-
-  const code = buildTicketCode();
-  if (!code) { errEl.textContent = 'Datos incompletos.'; return; }
-
+function generateOvPalet() {
+  const fecha = document.getElementById('cpFecha').value;
+  if (!fecha || !ovTienda) return;
+  const code = buildC02(ovTienda, ovSerie, fecha);
+  const [yyyy,mm,dd] = fecha.split('-');
   try {
-    JsBarcode(document.getElementById('tkBc'), code, {
-      format: 'CODE128', lineColor: '#000000', background: '#ffffff',
-      width: 3, height: 100, displayValue: true,
-      fontSize: 13, fontOptions: '600', font: 'monospace', margin: 14,
+    JsBarcode(document.getElementById('ovBcPalet'), code, {
+      format:'CODE128', lineColor:'#000000', background:'#ffffff',
+      width:3, height:90, displayValue:true, fontSize:13, fontOptions:'600', font:'monospace', margin:12,
     });
-    let metaStr = '';
-    if (tipo === 'C02') {
-      const fecha = document.getElementById('tkFecha').value;
-      const [yyyy,mm,dd] = fecha.split('-');
-      metaStr = 'C02 · Tienda ' + document.getElementById('tkTienda').value.trim() + ' · ' + dd + '/' + mm + '/' + yyyy + ' · Serie ' + pad(parseInt(serie),3);
-    } else {
-      metaStr = 'LE0 · Orden ' + document.getElementById('tkOrden').value.trim() + ' · Serie ' + pad(parseInt(serie),3);
-    }
-    document.getElementById('tkBcMeta').textContent = metaStr;
-  } catch(e) {
-    errEl.textContent = 'Error generando el código.';
-  }
+    document.getElementById('ovBcPaletMeta').textContent = code;
+  } catch(e) {}
 }
 
-// LIBRE
-const hints = {
-  'CODE128': ['1234567890128','ABC-2025','SN-00123'],
-  'CODE39': ['ITEM-001','PROD-XYZ'],
-  'GS1-128': ['00123456789012345675'],
-  'EAN13': ['5901234123457'],
-  'EAN8': ['96385074'],
-  'UPCA': ['012345678905'],
-  'ITF14': ['10012345678902'],
-  'MSI': ['12345']
-};
+function selectAnden(r) {
+  ['R01','R02','R03'].forEach(x => document.getElementById('ov-anden-'+x).classList.remove('selected'));
+  document.getElementById('ov-anden-'+r).classList.add('selected');
+  const code = 'LE0-' + r;
+  try {
+    JsBarcode(document.getElementById('ovBcAnden'), code, {
+      format:'CODE128', lineColor:'#000000', background:'#ffffff',
+      width:3, height:90, displayValue:true, fontSize:14, fontOptions:'700', font:'monospace', margin:12,
+    });
+    document.getElementById('ovBcAndenMeta').textContent = code;
+    const card = document.getElementById('ovAndenCard');
+    card.style.display = 'flex';
+    setTimeout(()=>card.scrollIntoView({behavior:'smooth',block:'center'}),100);
+  } catch(e) {}
+}
 
+// ---- LE0 ----
+function updateLE0Preview() {
+  const orden = document.getElementById('le0Orden').value.trim();
+  const serie = parseInt(document.getElementById('le0Serie').value)||1;
+  document.getElementById('le0Preview').textContent = orden ? 'LE0' + orden + pad(serie,3) : '—';
+}
+
+function incrementLE0Serie() {
+  const el = document.getElementById('le0Serie');
+  el.value = (parseInt(el.value)||0) + 1;
+  updateLE0Preview();
+  if (document.getElementById('le0Bc').width) generateLE0();
+}
+
+function generateLE0() {
+  const errEl = document.getElementById('le0Err'); errEl.textContent = '';
+  const orden = document.getElementById('le0Orden').value.trim();
+  const serie = parseInt(document.getElementById('le0Serie').value)||1;
+  if (!orden) { errEl.textContent = 'Ingresa el número de orden.'; return; }
+  const code = 'LE0' + orden + pad(serie,3);
+  try {
+    JsBarcode(document.getElementById('le0Bc'), code, {
+      format:'CODE128', lineColor:'#000000', background:'#ffffff',
+      width:3, height:90, displayValue:true, fontSize:13, fontOptions:'600', font:'monospace', margin:12,
+    });
+    document.getElementById('le0BcMeta').textContent = code;
+  } catch(e) { errEl.textContent = 'Error generando el código.'; }
+}
+
+// ---- LIBRE ----
+const hints = {
+  'CODE128':['1234567890128','ABC-2025'],
+  'CODE39':['ITEM-001','PROD-XYZ'],
+  'GS1-128':['00123456789012345675'],
+  'EAN13':['5901234123457'],
+  'EAN8':['96385074'],
+  'UPCA':['012345678905'],
+  'ITF14':['10012345678902'],
+  'MSI':['12345']
+};
 function renderHints() {
   const type = document.getElementById('bcType').value;
   const pills = document.getElementById('hintPills');
   pills.innerHTML = '';
   (hints[type]||[]).forEach(v => {
     const p = document.createElement('span');
-    p.className = 'hint-pill'; p.textContent = v;
-    p.onclick = () => { document.getElementById('bcValue').value = v; generateLibre(); };
+    p.className='hint-pill'; p.textContent=v;
+    p.onclick=()=>{ document.getElementById('bcValue').value=v; generateLibre(); };
     pills.appendChild(p);
   });
 }
-
 function onBcTypeChange() {
-  const h = hints[document.getElementById('bcType').value];
-  if (h) document.getElementById('bcValue').value = h[0];
+  const h=hints[document.getElementById('bcType').value];
+  if(h) document.getElementById('bcValue').value=h[0];
   renderHints(); generateLibre();
 }
-
-document.getElementById('bcValue').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') { this.blur(); generateLibre(); }
-});
-
 function generateLibre() {
-  const val = document.getElementById('bcValue').value.trim();
-  const type = document.getElementById('bcType').value;
-  const errEl = document.getElementById('bcErr');
-  errEl.textContent = '';
-  if (!val) { errEl.textContent = 'Ingresa un valor.'; return; }
+  const val=document.getElementById('bcValue').value.trim();
+  const type=document.getElementById('bcType').value;
+  const errEl=document.getElementById('bcErr'); errEl.textContent='';
+  if(!val){errEl.textContent='Ingresa un valor.';return;}
   try {
-    JsBarcode(document.getElementById('bc'), val, {
-      format: type, lineColor: '#000000', background: '#ffffff',
-      width: 3, height: 100, displayValue: true,
-      fontSize: 13, fontOptions: '600', margin: 14,
+    JsBarcode(document.getElementById('bc'),val,{
+      format:type,lineColor:'#000000',background:'#ffffff',
+      width:3,height:90,displayValue:true,fontSize:13,fontOptions:'600',margin:12,
     });
-    document.getElementById('bcMeta').textContent = type + ' — ' + val;
-  } catch(e) {
-    errEl.textContent = 'Valor incompatible con ' + type + '.';
-  }
+    document.getElementById('bcMeta').textContent=type+' — '+val;
+  } catch(e){errEl.textContent='Valor incompatible con '+type+'.';}
 }
+document.getElementById('bcValue').addEventListener('keydown',function(e){if(e.key==='Enter'){this.blur();generateLibre();}});
 
-// SHARED
-function showFullscreen(canvasId, meta) {
-  const src = document.getElementById(canvasId);
-  if (!src || !src.width) return;
-  const fsCanvas = document.getElementById('bcFull');
-  const img = new Image();
-  img.onload = () => {
-    fsCanvas.width = img.width * 2; fsCanvas.height = img.height * 2;
-    fsCanvas.style.maxWidth = '100%'; fsCanvas.style.maxHeight = '65vh';
-    fsCanvas.getContext('2d').drawImage(img, 0, 0, fsCanvas.width, fsCanvas.height);
+// ---- FULLSCREEN ----
+function showFS(canvasId, meta) {
+  const src=document.getElementById(canvasId);
+  if(!src||!src.width) return;
+  const fsc=document.getElementById('fsBc');
+  const img=new Image();
+  img.onload=()=>{
+    fsc.width=img.width*2; fsc.height=img.height*2;
+    fsc.style.maxWidth='100%'; fsc.style.maxHeight='65vh';
+    fsc.getContext('2d').drawImage(img,0,0,fsc.width,fsc.height);
   };
-  img.src = src.toDataURL();
-  document.getElementById('fsMeta').textContent = meta || '';
+  img.src=src.toDataURL();
+  document.getElementById('fsMeta').textContent=meta||'';
   document.getElementById('fsOverlay').classList.add('active');
-  if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(()=>{});
+  if(screen.orientation&&screen.orientation.lock) screen.orientation.lock('landscape').catch(()=>{});
 }
-
-function closeFullscreen() {
+function closeFS() {
   document.getElementById('fsOverlay').classList.remove('active');
-  if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock();
+  if(screen.orientation&&screen.orientation.unlock) screen.orientation.unlock();
 }
-
-function downloadPNG(canvasId, prefix) {
-  const canvas = document.getElementById(canvasId);
-  if (!canvas || !canvas.width) return;
-  const link = document.createElement('a');
-  link.download = prefix + '_' + Date.now() + '.png';
-  link.href = canvas.toDataURL('image/png');
+function dlPNG(canvasId,prefix) {
+  const canvas=document.getElementById(canvasId);
+  if(!canvas||!canvas.width) return;
+  const link=document.createElement('a');
+  link.download=prefix+'_'+Date.now()+'.png';
+  link.href=canvas.toDataURL('image/png');
   link.click();
 }
 
-window.addEventListener('load', () => {
-  const today = new Date();
-  document.getElementById('tkFecha').value = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
-  updatePreview();
+// ---- INIT ----
+window.addEventListener('load',()=>{
+  const today=new Date();
+  document.getElementById('cpFecha').value=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
+  renderTiendas();
   renderHints();
   generateLibre();
 });
+
+if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{});}
 </script>
 </body>
 </html>
