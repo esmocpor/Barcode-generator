@@ -265,7 +265,21 @@ select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
 
   <div class="ov-tienda-header">
     <div class="ov-tienda-badge" id="ovBadge"></div>
-    <div class="ov-tienda-num" id="ovTitle"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+      <div class="ov-tienda-num" id="ovTitle"></div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="prevTienda()" id="prevTiendaBtn" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:var(--surface2);border:1.5px solid var(--border);border-radius:14px;padding:10px 14px;cursor:pointer;flex-shrink:0;min-width:64px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          <span style="font-size:10px;font-weight:700;color:var(--orange);letter-spacing:0.04em;text-transform:uppercase;">Anterior</span>
+          <span style="font-size:11px;font-weight:800;color:var(--muted);font-family:monospace;" id="prevTiendaLabel">—</span>
+        </button>
+        <button onclick="nextTienda()" id="nextTiendaBtn" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:var(--surface2);border:1.5px solid var(--border);border-radius:14px;padding:10px 14px;cursor:pointer;flex-shrink:0;min-width:64px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          <span style="font-size:10px;font-weight:700;color:var(--blue);letter-spacing:0.04em;text-transform:uppercase;">Siguiente</span>
+          <span style="font-size:11px;font-weight:800;color:var(--muted);font-family:monospace;" id="nextTiendaLabel">—</span>
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- SERIE POR TIENDA -->
@@ -417,10 +431,49 @@ function openTienda(t) {
   ovTienda = t;
   ovSerie = globalSerie;
   document.getElementById('ovSerieVal').textContent = pad(ovSerie, 3);
+function openTienda(t, keepAnden) {
+  ovTienda = t;
+  ovSerie = globalSerie;
+  document.getElementById('ovSerieVal').textContent = pad(ovSerie, 3);
   document.getElementById('ovBadge').textContent = 'C02 · Serie ' + pad(ovSerie,3);
   document.getElementById('ovTitle').textContent = 'Tienda ' + t;
-  ['R01','R02','R03'].forEach(r => document.getElementById('ov-anden-'+r).classList.remove('selected'));
-  document.getElementById('ovAndenCard').style.display = 'none';
+
+  // Solo resetear andén si no viene de nav anterior/siguiente con andén activo
+  if (!keepAnden) {
+    ['R01','R02','R03'].forEach(r => document.getElementById('ov-anden-'+r).classList.remove('selected'));
+    document.getElementById('ovAndenCard').style.display = 'none';
+  } else {
+    // Regenerar el andén activo con los mismos datos (no cambia)
+    // El código del andén es fijo (LE0-R0X), no depende de la tienda, no hace falta regenerar
+  }
+
+  const idx = TIENDAS.indexOf(t);
+
+  // Botón anterior
+  const prevBtn = document.getElementById('prevTiendaBtn');
+  const prevLabel = document.getElementById('prevTiendaLabel');
+  if (idx > 0) {
+    prevBtn.style.display = 'flex';
+    prevLabel.textContent = TIENDAS[idx - 1];
+  } else {
+    prevBtn.style.display = 'none';
+  }
+
+  // Botón siguiente
+  const nextBtn = document.getElementById('nextTiendaBtn');
+  const nextLabel = document.getElementById('nextTiendaLabel');
+  if (idx < TIENDAS.length - 1) {
+    nextBtn.style.display = 'flex';
+    nextLabel.textContent = TIENDAS[idx + 1];
+  } else {
+    nextBtn.style.display = 'none';
+  }
+
+  generateOvPalet();
+  const ov = document.getElementById('tiendaOverlay');
+  ov.classList.add('active');
+  ov.scrollTop = 0;
+}
   generateOvPalet();
   const ov = document.getElementById('tiendaOverlay');
   ov.classList.add('active');
@@ -429,6 +482,48 @@ function openTienda(t) {
 
 function closeOverlay() {
   document.getElementById('tiendaOverlay').classList.remove('active');
+}
+
+function nextTienda() {
+  const idx = TIENDAS.indexOf(ovTienda);
+  if (idx === -1 || idx >= TIENDAS.length - 1) return;
+  const andenActivo = document.querySelector('.anden-btn.selected') !== null;
+  openTienda(TIENDAS[idx + 1], andenActivo);
+}
+
+function prevTienda() {
+  const idx = TIENDAS.indexOf(ovTienda);
+  if (idx <= 0) return;
+  const andenActivo = document.querySelector('.anden-btn.selected') !== null;
+  openTienda(TIENDAS[idx - 1], andenActivo);
+}
+
+function selectAnden(r) {
+  const btn = document.getElementById('ov-anden-'+r);
+  const yaSeleccionado = btn.classList.contains('selected');
+
+  // Deseleccionar todos
+  ['R01','R02','R03'].forEach(x => document.getElementById('ov-anden-'+x).classList.remove('selected'));
+
+  if (yaSeleccionado) {
+    // Toggle: ocultar si ya estaba seleccionado
+    document.getElementById('ovAndenCard').style.display = 'none';
+    return;
+  }
+
+  // Seleccionar el nuevo
+  btn.classList.add('selected');
+  const code = 'LE0-' + r;
+  try {
+    JsBarcode(document.getElementById('ovBcAnden'), code, {
+      format:'CODE128', lineColor:'#000000', background:'#ffffff',
+      width:3, height:90, displayValue:true, fontSize:14, fontOptions:'700', font:'monospace', margin:12,
+    });
+    document.getElementById('ovBcAndenMeta').textContent = code;
+    const card = document.getElementById('ovAndenCard');
+    card.style.display = 'flex';
+    setTimeout(()=>card.scrollIntoView({behavior:'smooth',block:'center'}),100);
+  } catch(e) {}
 }
 
 function adjustOvSerie(d) {
@@ -449,22 +544,6 @@ function generateOvPalet() {
       width:3, height:90, displayValue:true, fontSize:13, fontOptions:'600', font:'monospace', margin:12,
     });
     document.getElementById('ovBcPaletMeta').textContent = code;
-  } catch(e) {}
-}
-
-function selectAnden(r) {
-  ['R01','R02','R03'].forEach(x => document.getElementById('ov-anden-'+x).classList.remove('selected'));
-  document.getElementById('ov-anden-'+r).classList.add('selected');
-  const code = 'LE0-' + r;
-  try {
-    JsBarcode(document.getElementById('ovBcAnden'), code, {
-      format:'CODE128', lineColor:'#000000', background:'#ffffff',
-      width:3, height:90, displayValue:true, fontSize:14, fontOptions:'700', font:'monospace', margin:12,
-    });
-    document.getElementById('ovBcAndenMeta').textContent = code;
-    const card = document.getElementById('ovAndenCard');
-    card.style.display = 'flex';
-    setTimeout(()=>card.scrollIntoView({behavior:'smooth',block:'center'}),100);
   } catch(e) {}
 }
 
