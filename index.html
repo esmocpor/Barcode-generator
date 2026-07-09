@@ -267,17 +267,15 @@ select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
     <div class="ov-tienda-badge" id="ovBadge"></div>
   <div class="ov-tienda-header">
     <div class="ov-tienda-badge" id="ovBadge"></div>
-    <div class="ov-tienda-num" id="ovTitle" style="margin-bottom:12px;"></div>
-    <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;">
-      <button onclick="prevTienda()" id="prevTiendaBtn" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:var(--surface2);border:1.5px solid var(--border);border-radius:14px;padding:10px 14px;cursor:pointer;flex-shrink:0;min-width:64px;">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-        <span style="font-size:10px;font-weight:700;color:var(--orange);letter-spacing:0.04em;text-transform:uppercase;">Anterior</span>
-        <span style="font-size:11px;font-weight:800;color:var(--muted);font-family:monospace;" id="prevTiendaLabel">—</span>
+    <div style="display:flex;align-items:center;gap:10px;margin-top:4px;">
+      <div class="ov-tienda-num" id="ovTitle" style="flex:1;"></div>
+      <button onclick="prevTienda()" id="prevTiendaBtn" style="width:44px;height:44px;border-radius:12px;background:var(--surface2);border:1.5px solid var(--border);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;flex-shrink:0;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        <span style="font-size:9px;font-weight:700;color:var(--orange);letter-spacing:0.03em;" id="prevTiendaLabel">—</span>
       </button>
-      <button onclick="nextTienda()" id="nextTiendaBtn" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:var(--surface2);border:1.5px solid var(--border);border-radius:14px;padding:10px 14px;cursor:pointer;flex-shrink:0;min-width:64px;">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-        <span style="font-size:10px;font-weight:700;color:var(--blue);letter-spacing:0.04em;text-transform:uppercase;">Siguiente</span>
-        <span style="font-size:11px;font-weight:800;color:var(--muted);font-family:monospace;" id="nextTiendaLabel">—</span>
+      <button onclick="nextTienda()" id="nextTiendaBtn" style="width:44px;height:44px;border-radius:12px;background:var(--surface2);border:1.5px solid var(--border);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;flex-shrink:0;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        <span style="font-size:9px;font-weight:700;color:var(--blue);letter-spacing:0.03em;" id="nextTiendaLabel">—</span>
       </button>
     </div>
   </div>
