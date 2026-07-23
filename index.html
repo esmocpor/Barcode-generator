@@ -18,84 +18,55 @@
 }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 body { background: var(--bg); font-family: -apple-system, 'SF Pro Text', sans-serif; color: var(--text); min-height: 100vh; padding: env(safe-area-inset-top,16px) 16px env(safe-area-inset-bottom,24px); }
-
-/* HEADER */
 header { padding: 20px 0 14px; display: flex; align-items: center; justify-content: space-between; }
 header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
 .hbadge { font-size: 11px; color: var(--muted); background: var(--surface2); padding: 3px 9px; border-radius: 20px; font-weight: 600; border: 1px solid var(--border); }
-
-/* TABS */
 .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 18px; }
 .tab-btn { height: 42px; border-radius: 10px; border: 1.5px solid var(--border); font-size: 14px; font-weight: 600; cursor: pointer; background: var(--surface); color: var(--muted); transition: all 0.15s; }
 .tab-btn.active { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
 .panel { display: none; }
 .panel.active { display: block; }
-
-/* DATE BAR */
 .date-bar { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
 .date-bar svg { flex-shrink: 0; color: var(--muted); }
 .date-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 2px; }
 .date-bar input[type="date"] { background: none; border: none; color: var(--text); font-size: 16px; font-weight: 600; outline: none; -webkit-appearance: none; color-scheme: dark; width: 100%; }
-
-/* SERIE GLOBAL */
 .serie-bar { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.tipo-almacen-btn {
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 4px; padding: 14px 8px; border-radius: 14px;
-  border: 2px solid var(--border); background: var(--surface);
-  cursor: pointer; transition: all 0.15s; color: var(--text);
-}
-.tipo-almacen-btn.active { border-color: var(--blue); background: rgba(10,132,255,0.1); }
-.tipo-almacen-btn:active { transform: scale(0.97); }
-.tipo-code { font-size: 18px; font-weight: 900; font-family: 'SF Mono', monospace; color: var(--text); letter-spacing: 0.04em; }
-.tipo-almacen-btn.active .tipo-code { color: var(--blue); }
-.tipo-label { font-size: 10px; font-weight: 600; color: var(--muted); text-align: center; letter-spacing: 0.03em; }
 .serie-bar-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
 .serie-controls { display: flex; align-items: center; gap: 10px; }
 .serie-ctrl-btn { width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .serie-ctrl-btn:active { background: var(--border); }
 .serie-val { font-size: 22px; font-weight: 800; font-family: 'SF Mono', monospace; color: var(--yellow); min-width: 48px; text-align: center; }
-
-/* SECTION HEADERS */
+.tipo-almacen-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 14px 8px; border-radius: 14px; border: 2px solid var(--border); background: var(--surface); cursor: pointer; transition: all 0.15s; color: var(--text); }
+.tipo-almacen-btn.active { border-color: var(--blue); background: rgba(10,132,255,0.1); }
+.tipo-almacen-btn:active { transform: scale(0.97); }
+.tipo-code { font-size: 18px; font-weight: 900; font-family: 'SF Mono', monospace; color: var(--text); letter-spacing: 0.04em; }
+.tipo-almacen-btn.active .tipo-code { color: var(--blue); }
+.tipo-label { font-size: 10px; font-weight: 600; color: var(--muted); text-align: center; letter-spacing: 0.03em; }
 .sec-header { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 16px 0 8px; padding: 0 2px; display: flex; align-items: center; justify-content: space-between; }
 .sec-count { font-size: 11px; font-weight: 600; color: var(--muted); background: var(--surface2); padding: 2px 8px; border-radius: 20px; }
-
-/* TIENDA ITEMS */
-.tienda-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 0; margin-bottom: 8px; overflow: hidden; cursor: pointer; transition: background 0.12s; }
+.tienda-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 8px; overflow: hidden; cursor: pointer; transition: background 0.12s; }
 .tienda-item:active { background: var(--surface2); }
 .tienda-main { display: flex; align-items: center; padding: 14px; gap: 12px; }
-.tienda-num { font-size: 20px; font-weight: 800; color: var(--text); min-width: 44px; }
+.tienda-num { font-size: 20px; font-weight: 800; color: var(--text); }
 .tienda-code { font-family: 'SF Mono', monospace; font-size: 11px; color: var(--muted); margin-top: 2px; letter-spacing: 0.04em; }
 .tienda-arrow { color: var(--muted); margin-left: auto; flex-shrink: 0; }
-
-/* OVERLAY */
 .overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg); z-index: 99; overflow-y: auto; padding: env(safe-area-inset-top,16px) 16px env(safe-area-inset-bottom,24px); }
 .overlay.active { display: block; }
 .back-btn { display: flex; align-items: center; gap: 8px; color: var(--blue); font-size: 16px; font-weight: 500; background: none; border: none; cursor: pointer; padding: 4px 0 20px; }
-
-/* TIENDA HEADER EN OVERLAY */
 .ov-tienda-header { margin-bottom: 20px; }
 .ov-tienda-num { font-size: 42px; font-weight: 900; letter-spacing: -1px; line-height: 1; }
-.ov-tienda-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-top: 4px; }
-
-/* SERIE POR TIENDA */
+.ov-tienda-badge { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 6px; }
 .ov-serie-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; }
 .ov-serie-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
 .ov-serie-controls { display: flex; align-items: center; gap: 10px; }
-
-/* STEP LABELS */
 .step-label { font-size: 11px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
 .step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--blue); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
-
-/* BARCODE CARD */
 .bc-card { background: #fff; border-radius: var(--radius); padding: 18px 14px 14px; margin-bottom: 14px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
 .bc-card canvas { max-width: 100%; display: block; }
 .bc-card-meta { font-size: 11px; color: #666; text-align: center; font-weight: 500; font-family: monospace; }
 .bc-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; }
 .bc-action-btn { height: 40px; background: #f5f4f0; border: 1px solid #e0ddd5; border-radius: 10px; font-size: 13px; font-weight: 600; color: #1a1916; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
 .bc-action-btn:active { background: #e0ddd5; }
-
-/* ANDENES */
 .anden-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 14px; }
 .anden-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 16px 8px; border-radius: 14px; border: 2px solid var(--border); background: var(--surface); cursor: pointer; transition: all 0.15s; color: var(--text); }
 .anden-btn:active { transform: scale(0.95); }
@@ -104,8 +75,6 @@ header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
 .anden-name { font-size: 17px; font-weight: 800; }
 .anden-sub { font-size: 10px; color: var(--muted); font-weight: 500; }
 .anden-btn.selected .anden-sub { color: var(--blue); }
-
-/* LIBRE */
 .card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); padding: 14px; margin-bottom: 10px; }
 label { display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; }
 input[type="text"], select { width: 100%; height: var(--btn-h); border: 1px solid var(--border); border-radius: 10px; padding: 0 14px; font-size: 16px; background: var(--surface2); color: var(--text); outline: none; -webkit-appearance: none; color-scheme: dark; font-family: inherit; transition: border-color 0.15s; }
@@ -118,8 +87,6 @@ select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
 .hint-pill { font-size: 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: 4px 10px; color: var(--muted); font-family: 'SF Mono', monospace; cursor: pointer; font-weight: 500; }
 .hint-pill:active { background: var(--border); }
 .err { font-size: 13px; color: var(--red); text-align: center; padding: 6px 0; min-height: 20px; }
-
-/* LE0 MODULE */
 .le0-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; margin-bottom: 10px; }
 .le0-input { width: 100%; height: var(--btn-h); border: 1px solid var(--border); border-radius: 10px; padding: 0 14px; font-size: 20px; font-weight: 700; font-family: 'SF Mono', monospace; background: var(--surface2); color: var(--text); outline: none; -webkit-appearance: none; color-scheme: dark; letter-spacing: 0.04em; }
 .le0-input:focus { border-color: var(--blue); }
@@ -128,16 +95,28 @@ select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
 .serie-row input { flex: 1; height: var(--btn-h); border: 1px solid var(--border); border-radius: 10px; padding: 0 14px; font-size: 18px; font-weight: 700; font-family: 'SF Mono', monospace; background: var(--surface2); color: var(--text); outline: none; -webkit-appearance: none; color-scheme: dark; }
 .serie-inc-btn { height: var(--btn-h); min-width: 52px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; font-size: 22px; color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .serie-inc-btn:active { background: var(--border); }
-
-/* FULLSCREEN */
 .fs-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #000; z-index: 999; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 20px; }
 .fs-overlay.active { display: flex; }
 .fs-overlay canvas { max-width: 100%; max-height: 65vh; border-radius: 8px; }
 .fs-close { position: absolute; top: env(safe-area-inset-top,20px); right: 20px; font-size: 28px; color: #555; cursor: pointer; background: none; border: none; padding: 8px; line-height: 1; }
 .fs-meta { font-size: 12px; color: #555; font-weight: 500; text-align: center; letter-spacing: 0.04em; }
-
 .footer-note { font-size: 11px; color: var(--muted); text-align: center; padding: 14px 0 6px; display: flex; align-items: center; justify-content: center; gap: 6px; }
 .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); display: inline-block; }
+
+/* MODAL CONFIRMACION */
+.modal-bg { display: none; position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.7); z-index: 200; align-items: center; justify-content: center; padding: 24px; }
+.modal-bg.active { display: flex; }
+.modal-box { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 28px 20px 20px; width: 100%; max-width: 340px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.modal-icon { font-size: 44px; }
+.modal-title { font-size: 19px; font-weight: 800; text-align: center; }
+.modal-sub { font-size: 14px; color: var(--muted); text-align: center; line-height: 1.5; }
+.modal-tipo { font-size: 28px; font-weight: 900; font-family: 'SF Mono', monospace; color: var(--blue); margin: 6px 0; }
+.modal-desc { font-size: 13px; color: var(--muted); }
+.modal-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin-top: 8px; }
+.modal-cancel { height: 48px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface2); color: var(--muted); font-size: 15px; font-weight: 600; cursor: pointer; }
+.modal-confirm { height: 48px; border-radius: 12px; border: none; background: var(--blue); color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; }
+.modal-confirm:active { opacity: 0.85; }
+.modal-cancel:active { background: var(--border); }
 </style>
 </head>
 <body>
@@ -152,10 +131,8 @@ select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
   <button class="tab-btn" onclick="switchTab('libre')">🔢 LE0 · Libre</button>
 </div>
 
-<!-- ======= PANEL C02 + CIERRE ======= -->
+<!-- PANEL C02 -->
 <div class="panel active" id="panel-cierre">
-
-  <!-- FECHA -->
   <div class="date-bar">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
     <div style="flex:1;">
@@ -164,19 +141,19 @@ select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
     </div>
   </div>
 
-  <!-- TIPO DE ALMACÉN -->
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
-    <button id="tipo-C02" onclick="selectTipo('C02')" class="tipo-almacen-btn active">
+    <button id="tipo-C02" onclick="pedirConfirmacionTipo('C02')" class="tipo-almacen-btn active">
       <span style="font-size:18px;">🏭</span>
       <span class="tipo-code">C02</span>
       <span class="tipo-label">Centro de Distribución</span>
     </button>
-    <button id="tipo-C07" onclick="selectTipo('C07')" class="tipo-almacen-btn">
+    <button id="tipo-C07" onclick="pedirConfirmacionTipo('C07')" class="tipo-almacen-btn">
       <span style="font-size:18px;">❄️</span>
       <span class="tipo-code">C07</span>
       <span class="tipo-label">Friobox</span>
     </button>
   </div>
+
   <div class="serie-bar">
     <div>
       <div class="serie-bar-label">Serie global</div>
@@ -189,16 +166,12 @@ select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
     </div>
   </div>
 
-  <!-- LISTA -->
   <div id="tiendaList"></div>
-
   <div class="footer-note"><span class="dot"></span> <span id="footerTipo">50 tiendas · C02 · Honeywell</span></div>
 </div>
 
-<!-- ======= PANEL LE0 + LIBRE ======= -->
+<!-- PANEL LE0 -->
 <div class="panel" id="panel-libre">
-
-  <!-- LE0 -->
   <div style="font-size:13px;font-weight:600;color:var(--muted);margin-bottom:12px;">Orden de entrega (LE0)</div>
   <div class="le0-card">
     <label>Número de orden</label>
@@ -220,7 +193,7 @@ select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
     Generar LE0
   </button>
   <div class="err" id="le0Err"></div>
-  <div class="bc-card" id="le0BcCard" style="margin:12px 0;">
+  <div class="bc-card" style="margin:12px 0;">
     <canvas id="le0Bc"></canvas>
     <div class="bc-card-meta" id="le0BcMeta"></div>
     <div class="bc-actions">
@@ -234,10 +207,7 @@ select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
       </button>
     </div>
   </div>
-
   <div style="height:1px;background:var(--border);margin:6px 0 18px;"></div>
-
-  <!-- CÓDIGO LIBRE -->
   <div style="font-size:13px;font-weight:600;color:var(--muted);margin-bottom:12px;">Código libre</div>
   <div class="card">
     <label>Tipo de código</label>
@@ -279,7 +249,7 @@ select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
   <div class="footer-note"><span class="dot"></span> Optimizado para Honeywell</div>
 </div>
 
-<!-- ======= OVERLAY TIENDA ======= -->
+<!-- OVERLAY TIENDA -->
 <div class="overlay" id="tiendaOverlay">
   <button class="back-btn" onclick="closeOverlay()">
     <svg width="10" height="16" viewBox="0 0 10 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 1 2 8 8 15"/></svg>
@@ -302,9 +272,7 @@ select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
       </button>
     </div>
   </div>
-  </div>
 
-  <!-- SERIE POR TIENDA -->
   <div class="ov-serie-card">
     <div>
       <div class="ov-serie-label">Serie</div>
@@ -317,7 +285,6 @@ select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
     </div>
   </div>
 
-  <!-- PASO 1 -->
   <div class="step-label">
     <span class="step-num">1</span>
     Escanea el código del palet
@@ -337,10 +304,8 @@ select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
     </div>
   </div>
 
-  <!-- DIVISOR -->
   <div style="height:1px;background:var(--border);margin-bottom:20px;"></div>
 
-  <!-- PASO 2 -->
   <div class="step-label">
     <span class="step-num">2</span>
     Selecciona el andén de cierre
@@ -362,7 +327,6 @@ select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
       <span class="anden-sub">Andén 3</span>
     </button>
   </div>
-
   <div class="bc-card" id="ovAndenCard" style="display:none;margin-bottom:20px;">
     <canvas id="ovBcAnden"></canvas>
     <div class="bc-card-meta" id="ovBcAndenMeta"></div>
@@ -375,6 +339,21 @@ select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Descargar
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CONFIRMACION TIPO -->
+<div class="modal-bg" id="modalTipo">
+  <div class="modal-box">
+    <div class="modal-icon" id="modalIcon"></div>
+    <div class="modal-title">¿Cambiar tipo de almacén?</div>
+    <div class="modal-tipo" id="modalTipoCod"></div>
+    <div class="modal-desc" id="modalTipoDesc"></div>
+    <div class="modal-sub" style="margin-top:4px;">Todos los códigos de la lista se actualizarán.</div>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="cerrarModal()">Cancelar</button>
+      <button class="modal-confirm" onclick="confirmarTipo()">Confirmar</button>
     </div>
   </div>
 </div>
@@ -398,17 +377,39 @@ const GRUPOS = [
 
 let globalSerie = 1;
 let tipoAlmacen = 'C02';
+let tipoPendiente = null;
 let ovTienda = null;
 let ovSerie = 1;
 
 function pad(n, len) { return String(n).padStart(len, '0'); }
 
-function selectTipo(tipo) {
-  tipoAlmacen = tipo;
-  document.getElementById('tipo-C02').classList.toggle('active', tipo === 'C02');
-  document.getElementById('tipo-C07').classList.toggle('active', tipo === 'C07');
-  document.getElementById('tabCierre').textContent = '📦 ' + tipo + ' · Cierre';
-  document.getElementById('footerTipo').textContent = '50 tiendas · ' + tipo + ' · Honeywell';
+// ---- CONFIRMACION TIPO ----
+function pedirConfirmacionTipo(tipo) {
+  if (tipo === tipoAlmacen) return;
+  tipoPendiente = tipo;
+  const info = {
+    'C02': { icon: '🏭', desc: 'Centro de Distribución' },
+    'C07': { icon: '❄️', desc: 'Friobox' },
+  };
+  document.getElementById('modalIcon').textContent = info[tipo].icon;
+  document.getElementById('modalTipoCod').textContent = tipo;
+  document.getElementById('modalTipoDesc').textContent = info[tipo].desc;
+  document.getElementById('modalTipo').classList.add('active');
+}
+
+function cerrarModal() {
+  document.getElementById('modalTipo').classList.remove('active');
+  tipoPendiente = null;
+}
+
+function confirmarTipo() {
+  if (!tipoPendiente) return;
+  tipoAlmacen = tipoPendiente;
+  document.getElementById('tipo-C02').classList.toggle('active', tipoAlmacen === 'C02');
+  document.getElementById('tipo-C07').classList.toggle('active', tipoAlmacen === 'C07');
+  document.getElementById('tabCierre').textContent = '📦 ' + tipoAlmacen + ' · Cierre';
+  document.getElementById('footerTipo').textContent = '50 tiendas · ' + tipoAlmacen + ' · Honeywell';
+  cerrarModal();
   renderTiendas();
 }
 
@@ -418,15 +419,13 @@ function switchTab(tab) {
   document.getElementById('panel-libre').classList.toggle('active', tab==='libre');
 }
 
-// ---- SERIE GLOBAL ----
 function adjustGlobalSerie(d) {
   globalSerie = Math.max(1, Math.min(999, globalSerie + d));
   document.getElementById('globalSerieVal').textContent = pad(globalSerie, 3);
   renderTiendas();
 }
 
-// ---- LISTA DE TIENDAS ----
-function buildC02(tienda, serie, fecha) {
+function buildCode(tienda, serie, fecha) {
   const [yyyy,mm,dd] = fecha.split('-');
   return tipoAlmacen + '0' + pad(tienda,3) + yyyy.slice(-2) + mm + dd + pad(serie,3);
 }
@@ -435,16 +434,13 @@ function renderTiendas() {
   const fecha = document.getElementById('cpFecha').value;
   const list = document.getElementById('tiendaList');
   if (!fecha) {
-    list.innerHTML = '<div style="text-align:center;color:var(--muted);padding:30px 0;font-size:14px;">Selecciona una fecha para ver los C02</div>';
+    list.innerHTML = '<div style="text-align:center;color:var(--muted);padding:30px 0;font-size:14px;">Selecciona una fecha para ver los códigos</div>';
     return;
   }
   list.innerHTML = GRUPOS.map(g => `
-    <div class="sec-header">
-      <span>${g.label}</span>
-      <span class="sec-count">${g.items.length}</span>
-    </div>
+    <div class="sec-header"><span>${g.label}</span><span class="sec-count">${g.items.length}</span></div>
     ${g.items.map(t => {
-      const code = buildC02(t, globalSerie, fecha);
+      const code = buildCode(t, globalSerie, fecha);
       return `<div class="tienda-item" onclick="openTienda(${t})">
         <div class="tienda-main">
           <div style="flex:1;">
@@ -458,42 +454,28 @@ function renderTiendas() {
   `).join('');
 }
 
-// ---- OVERLAY ----
 function openTienda(t, keepAnden) {
   ovTienda = t;
   ovSerie = globalSerie;
   document.getElementById('ovSerieVal').textContent = pad(ovSerie, 3);
-  document.getElementById('ovBadge').textContent = tipoAlmacen + ' · Serie ' + pad(ovSerie,3);
+  document.getElementById('ovBadge').textContent = tipoAlmacen + ' · SERIE ' + pad(ovSerie,3);
   document.getElementById('ovTitle').textContent = 'Tienda ' + t;
 
-  // Solo resetear andén si no viene de nav anterior/siguiente con andén activo
   if (!keepAnden) {
     ['R01','R02','R03'].forEach(r => document.getElementById('ov-anden-'+r).classList.remove('selected'));
     document.getElementById('ovAndenCard').style.display = 'none';
   }
-  // Si keepAnden=true, el andén seleccionado y su código permanecen intactos
 
   const idx = TIENDAS.indexOf(t);
-
-  // Botón anterior
   const prevBtn = document.getElementById('prevTiendaBtn');
   const prevLabel = document.getElementById('prevTiendaLabel');
-  if (idx > 0) {
-    prevBtn.style.display = 'flex';
-    prevLabel.textContent = TIENDAS[idx - 1];
-  } else {
-    prevBtn.style.display = 'none';
-  }
+  if (idx > 0) { prevBtn.style.display = 'flex'; prevLabel.textContent = TIENDAS[idx-1]; }
+  else { prevBtn.style.display = 'none'; }
 
-  // Botón siguiente
   const nextBtn = document.getElementById('nextTiendaBtn');
   const nextLabel = document.getElementById('nextTiendaLabel');
-  if (idx < TIENDAS.length - 1) {
-    nextBtn.style.display = 'flex';
-    nextLabel.textContent = TIENDAS[idx + 1];
-  } else {
-    nextBtn.style.display = 'none';
-  }
+  if (idx < TIENDAS.length-1) { nextBtn.style.display = 'flex'; nextLabel.textContent = TIENDAS[idx+1]; }
+  else { nextBtn.style.display = 'none'; }
 
   generateOvPalet();
   const ov = document.getElementById('tiendaOverlay');
@@ -507,32 +489,46 @@ function closeOverlay() {
 
 function nextTienda() {
   const idx = TIENDAS.indexOf(ovTienda);
-  if (idx === -1 || idx >= TIENDAS.length - 1) return;
-  const andenActivo = document.querySelector('.anden-btn.selected') !== null;
-  openTienda(TIENDAS[idx + 1], andenActivo);
+  if (idx === -1 || idx >= TIENDAS.length-1) return;
+  const keepAnden = document.querySelector('.anden-btn.selected') !== null;
+  openTienda(TIENDAS[idx+1], keepAnden);
 }
 
 function prevTienda() {
   const idx = TIENDAS.indexOf(ovTienda);
   if (idx <= 0) return;
-  const andenActivo = document.querySelector('.anden-btn.selected') !== null;
-  openTienda(TIENDAS[idx - 1], andenActivo);
+  const keepAnden = document.querySelector('.anden-btn.selected') !== null;
+  openTienda(TIENDAS[idx-1], keepAnden);
+}
+
+function adjustOvSerie(d) {
+  ovSerie = Math.max(1, Math.min(999, ovSerie + d));
+  document.getElementById('ovSerieVal').textContent = pad(ovSerie, 3);
+  document.getElementById('ovBadge').textContent = tipoAlmacen + ' · SERIE ' + pad(ovSerie,3);
+  generateOvPalet();
+}
+
+function generateOvPalet() {
+  const fecha = document.getElementById('cpFecha').value;
+  if (!fecha || !ovTienda) return;
+  const code = buildCode(ovTienda, ovSerie, fecha);
+  try {
+    JsBarcode(document.getElementById('ovBcPalet'), code, {
+      format:'CODE128', lineColor:'#000000', background:'#ffffff',
+      width:3, height:90, displayValue:true, fontSize:13, fontOptions:'600', font:'monospace', margin:12,
+    });
+    document.getElementById('ovBcPaletMeta').textContent = code;
+  } catch(e) {}
 }
 
 function selectAnden(r) {
   const btn = document.getElementById('ov-anden-'+r);
   const yaSeleccionado = btn.classList.contains('selected');
-
-  // Deseleccionar todos
   ['R01','R02','R03'].forEach(x => document.getElementById('ov-anden-'+x).classList.remove('selected'));
-
   if (yaSeleccionado) {
-    // Toggle: ocultar si ya estaba seleccionado
     document.getElementById('ovAndenCard').style.display = 'none';
     return;
   }
-
-  // Seleccionar el nuevo
   btn.classList.add('selected');
   const code = 'LE0-' + r;
   try {
@@ -547,41 +543,18 @@ function selectAnden(r) {
   } catch(e) {}
 }
 
-function adjustOvSerie(d) {
-  ovSerie = Math.max(1, Math.min(999, ovSerie + d));
-  document.getElementById('ovSerieVal').textContent = pad(ovSerie, 3);
-  document.getElementById('ovBadge').textContent = tipoAlmacen + ' · Serie ' + pad(ovSerie,3);
-  generateOvPalet();
-}
-
-function generateOvPalet() {
-  const fecha = document.getElementById('cpFecha').value;
-  if (!fecha || !ovTienda) return;
-  const code = buildC02(ovTienda, ovSerie, fecha);
-  const [yyyy,mm,dd] = fecha.split('-');
-  try {
-    JsBarcode(document.getElementById('ovBcPalet'), code, {
-      format:'CODE128', lineColor:'#000000', background:'#ffffff',
-      width:3, height:90, displayValue:true, fontSize:13, fontOptions:'600', font:'monospace', margin:12,
-    });
-    document.getElementById('ovBcPaletMeta').textContent = code;
-  } catch(e) {}
-}
-
 // ---- LE0 ----
 function updateLE0Preview() {
   const orden = document.getElementById('le0Orden').value.trim();
   const serie = parseInt(document.getElementById('le0Serie').value)||1;
   document.getElementById('le0Preview').textContent = orden ? 'LE0' + orden + pad(serie,3) : '—';
 }
-
 function incrementLE0Serie() {
   const el = document.getElementById('le0Serie');
   el.value = (parseInt(el.value)||0) + 1;
   updateLE0Preview();
   if (document.getElementById('le0Bc').width) generateLE0();
 }
-
 function generateLE0() {
   const errEl = document.getElementById('le0Err'); errEl.textContent = '';
   const orden = document.getElementById('le0Orden').value.trim();
@@ -599,14 +572,10 @@ function generateLE0() {
 
 // ---- LIBRE ----
 const hints = {
-  'CODE128':['1234567890128','ABC-2025'],
-  'CODE39':['ITEM-001','PROD-XYZ'],
-  'GS1-128':['00123456789012345675'],
-  'EAN13':['5901234123457'],
-  'EAN8':['96385074'],
-  'UPCA':['012345678905'],
-  'ITF14':['10012345678902'],
-  'MSI':['12345']
+  'CODE128':['1234567890128','ABC-2025'], 'CODE39':['ITEM-001','PROD-XYZ'],
+  'GS1-128':['00123456789012345675'], 'EAN13':['5901234123457'],
+  'EAN8':['96385074'], 'UPCA':['012345678905'],
+  'ITF14':['10012345678902'], 'MSI':['12345']
 };
 function renderHints() {
   const type = document.getElementById('bcType').value;
@@ -672,11 +641,8 @@ function dlPNG(canvasId,prefix) {
 window.addEventListener('load',()=>{
   const today=new Date();
   document.getElementById('cpFecha').value=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
-  renderTiendas();
-  renderHints();
-  generateLibre();
+  renderTiendas(); renderHints(); generateLibre();
 });
-
 if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{});}
 </script>
 </body>
