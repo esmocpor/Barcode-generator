@@ -39,6 +39,17 @@ header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
 
 /* SERIE GLOBAL */
 .serie-bar { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.tipo-almacen-btn {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 4px; padding: 14px 8px; border-radius: 14px;
+  border: 2px solid var(--border); background: var(--surface);
+  cursor: pointer; transition: all 0.15s; color: var(--text);
+}
+.tipo-almacen-btn.active { border-color: var(--blue); background: rgba(10,132,255,0.1); }
+.tipo-almacen-btn:active { transform: scale(0.97); }
+.tipo-code { font-size: 18px; font-weight: 900; font-family: 'SF Mono', monospace; color: var(--text); letter-spacing: 0.04em; }
+.tipo-almacen-btn.active .tipo-code { color: var(--blue); }
+.tipo-label { font-size: 10px; font-weight: 600; color: var(--muted); text-align: center; letter-spacing: 0.03em; }
 .serie-bar-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
 .serie-controls { display: flex; align-items: center; gap: 10px; }
 .serie-ctrl-btn { width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
@@ -137,7 +148,7 @@ select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
 </header>
 
 <div class="tabs">
-  <button class="tab-btn active" onclick="switchTab('cierre')">📦 C02 · Cierre</button>
+  <button class="tab-btn active" id="tabCierre" onclick="switchTab('cierre')">📦 C02 · Cierre</button>
   <button class="tab-btn" onclick="switchTab('libre')">🔢 LE0 · Libre</button>
 </div>
 
@@ -153,7 +164,19 @@ select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
     </div>
   </div>
 
-  <!-- SERIE GLOBAL -->
+  <!-- TIPO DE ALMACÉN -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+    <button id="tipo-C02" onclick="selectTipo('C02')" class="tipo-almacen-btn active">
+      <span style="font-size:18px;">🏭</span>
+      <span class="tipo-code">C02</span>
+      <span class="tipo-label">Centro de Distribución</span>
+    </button>
+    <button id="tipo-C07" onclick="selectTipo('C07')" class="tipo-almacen-btn">
+      <span style="font-size:18px;">❄️</span>
+      <span class="tipo-code">C07</span>
+      <span class="tipo-label">Friobox</span>
+    </button>
+  </div>
   <div class="serie-bar">
     <div>
       <div class="serie-bar-label">Serie global</div>
@@ -169,7 +192,7 @@ select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
   <!-- LISTA -->
   <div id="tiendaList"></div>
 
-  <div class="footer-note"><span class="dot"></span> 50 tiendas · C02 · Honeywell</div>
+  <div class="footer-note"><span class="dot"></span> <span id="footerTipo">50 tiendas · C02 · Honeywell</span></div>
 </div>
 
 <!-- ======= PANEL LE0 + LIBRE ======= -->
@@ -263,8 +286,6 @@ select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
     Todas las tiendas
   </button>
 
-  <div class="ov-tienda-header">
-    <div class="ov-tienda-badge" id="ovBadge"></div>
   <div class="ov-tienda-header">
     <div class="ov-tienda-badge" id="ovBadge"></div>
     <div style="display:flex;align-items:center;gap:10px;margin-top:4px;">
@@ -376,10 +397,20 @@ const GRUPOS = [
 ];
 
 let globalSerie = 1;
+let tipoAlmacen = 'C02';
 let ovTienda = null;
 let ovSerie = 1;
 
 function pad(n, len) { return String(n).padStart(len, '0'); }
+
+function selectTipo(tipo) {
+  tipoAlmacen = tipo;
+  document.getElementById('tipo-C02').classList.toggle('active', tipo === 'C02');
+  document.getElementById('tipo-C07').classList.toggle('active', tipo === 'C07');
+  document.getElementById('tabCierre').textContent = '📦 ' + tipo + ' · Cierre';
+  document.getElementById('footerTipo').textContent = '50 tiendas · ' + tipo + ' · Honeywell';
+  renderTiendas();
+}
 
 function switchTab(tab) {
   document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', (i===0&&tab==='cierre')||(i===1&&tab==='libre')));
@@ -397,7 +428,7 @@ function adjustGlobalSerie(d) {
 // ---- LISTA DE TIENDAS ----
 function buildC02(tienda, serie, fecha) {
   const [yyyy,mm,dd] = fecha.split('-');
-  return 'C02' + '0' + pad(tienda,3) + yyyy.slice(-2) + mm + dd + pad(serie,3);
+  return tipoAlmacen + '0' + pad(tienda,3) + yyyy.slice(-2) + mm + dd + pad(serie,3);
 }
 
 function renderTiendas() {
@@ -432,7 +463,7 @@ function openTienda(t, keepAnden) {
   ovTienda = t;
   ovSerie = globalSerie;
   document.getElementById('ovSerieVal').textContent = pad(ovSerie, 3);
-  document.getElementById('ovBadge').textContent = 'C02 · Serie ' + pad(ovSerie,3);
+  document.getElementById('ovBadge').textContent = tipoAlmacen + ' · Serie ' + pad(ovSerie,3);
   document.getElementById('ovTitle').textContent = 'Tienda ' + t;
 
   // Solo resetear andén si no viene de nav anterior/siguiente con andén activo
@@ -519,7 +550,7 @@ function selectAnden(r) {
 function adjustOvSerie(d) {
   ovSerie = Math.max(1, Math.min(999, ovSerie + d));
   document.getElementById('ovSerieVal').textContent = pad(ovSerie, 3);
-  document.getElementById('ovBadge').textContent = 'C02 · Serie ' + pad(ovSerie,3);
+  document.getElementById('ovBadge').textContent = tipoAlmacen + ' · Serie ' + pad(ovSerie,3);
   generateOvPalet();
 }
 
