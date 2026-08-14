@@ -119,7 +119,7 @@ select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
 .material-scan-btn:active { opacity: 0.85; }
 .material-hint { font-size: 12px; color: var(--muted); text-align: center; }
 .manual-material-btn { background: none; border: none; color: var(--blue); font-size: 13px; font-weight: 600; text-decoration: underline; cursor: pointer; padding: 4px; }
-.material-active-label { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.material-active-label { display: flex; align-items: center; justify-content: space-between; margin-top: 4px; }
 .material-active-tag { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--green); display: flex; align-items: center; gap: 6px; }
 .change-material-btn { display: flex; align-items: center; gap: 5px; background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: 6px 12px; font-size: 12px; font-weight: 600; color: var(--yellow); cursor: pointer; }
 .change-material-btn:active { background: var(--border); }
@@ -431,19 +431,17 @@ select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
 
     <!-- Material ya leído -->
     <div class="bc-card" id="ovMaterialCard" style="display:none;margin-bottom:20px;">
-      <div class="material-active-label" style="width:100%;">
-        <span class="material-active-tag"><span class="dot"></span> Material activo</span>
-        <div style="display:flex;gap:6px;">
-          <button class="change-material-btn" onclick="cambiarMaterial()">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-            Cambiar
-          </button>
-        </div>
-      </div>
       <div class="bc-scroll">
         <canvas id="ovBcMaterial"></canvas>
       </div>
       <div class="bc-card-meta" id="ovBcMaterialMeta"></div>
+      <div class="material-active-label" style="width:100%;">
+        <span class="material-active-tag"><span class="dot"></span> Material activo</span>
+        <button class="change-material-btn" onclick="cambiarMaterial()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          Cambiar
+        </button>
+      </div>
       <div class="bc-actions">
         <button class="bc-action-btn" onclick="showFS('ovBcMaterial', document.getElementById('ovBcMaterialMeta').textContent)">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
@@ -620,7 +618,7 @@ function openTienda(t, keepAnden, keepModo) {
   if (keepModo && ovModo === 'distribuir') renderMaterialState();
   const ov = document.getElementById('tiendaOverlay');
   ov.classList.add('active');
-  ov.scrollTop = 0;
+  if (!keepAnden && !keepModo) ov.scrollTop = 0;
 }
 
 function closeOverlay() {
