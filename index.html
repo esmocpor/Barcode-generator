@@ -103,6 +103,32 @@ select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
 .footer-note { font-size: 11px; color: var(--muted); text-align: center; padding: 14px 0 6px; display: flex; align-items: center; justify-content: center; gap: 6px; }
 .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); display: inline-block; }
 
+/* MODO DISTRIBUIR / CERRAR */
+.modo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+.modo-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 18px 8px; border-radius: 14px; border: 2px solid var(--border); background: var(--surface); cursor: pointer; transition: all 0.15s; color: var(--text); }
+.modo-btn:active { transform: scale(0.97); }
+.modo-btn.selected { border-color: var(--blue); background: rgba(10,132,255,0.1); }
+.modo-icon { font-size: 26px; }
+.modo-name { font-size: 15px; font-weight: 800; }
+.modo-btn.selected .modo-name { color: var(--blue); }
+
+.material-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; background: var(--surface); border: 1.5px dashed var(--border); border-radius: var(--radius); padding: 30px 14px; margin-bottom: 20px; }
+.material-scan-btn { height: 48px; padding: 0 20px; background: var(--blue); color: #fff; border: none; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+.material-scan-btn:active { opacity: 0.85; }
+.material-hint { font-size: 12px; color: var(--muted); text-align: center; }
+.material-active-label { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.material-active-tag { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--green); display: flex; align-items: center; gap: 6px; }
+.change-material-btn { display: flex; align-items: center; gap: 5px; background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: 6px 12px; font-size: 12px; font-weight: 600; color: var(--yellow); cursor: pointer; }
+.change-material-btn:active { background: var(--border); }
+
+.scanner-overlay { display: none; position: fixed; inset: 0; background: #000; z-index: 300; flex-direction: column; }
+.scanner-overlay.active { display: flex; }
+.scanner-header { display: flex; align-items: center; justify-content: space-between; padding: env(safe-area-inset-top,16px) 16px 12px; color: #fff; font-size: 15px; font-weight: 700; }
+.scanner-close { background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; padding: 4px 8px; }
+#materialScannerReader { flex: 1; width: 100%; }
+.scanner-hint { color: #ccc; font-size: 13px; text-align: center; padding: 12px 20px calc(env(safe-area-inset-bottom,16px) + 12px); }
+.scanner-error { color: var(--red); font-size: 13px; text-align: center; padding: 0 20px 12px; display: none; }
+
 /* MODAL CONFIRMACION */
 .modal-bg { display: none; position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.7); z-index: 200; align-items: center; justify-content: center; padding: 24px; }
 .modal-bg.active { display: flex; }
@@ -286,61 +312,152 @@ select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
   </div>
 
   <div class="step-label">
-    <span class="step-num">1</span>
-    Escanea el código del palet
+    <span class="step-num">•</span>
+    ¿Qué deseas hacer?
   </div>
-  <div class="bc-card" style="margin-bottom:20px;">
-    <canvas id="ovBcPalet"></canvas>
-    <div class="bc-card-meta" id="ovBcPaletMeta"></div>
-    <div class="bc-actions">
-      <button class="bc-action-btn" onclick="showFS('ovBcPalet', document.getElementById('ovBcPaletMeta').textContent)">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
-        Pantalla completa
+  <div class="modo-grid" id="ovModoGrid">
+    <button class="modo-btn" id="ov-modo-distribuir" onclick="selectModo('distribuir')">
+      <span class="modo-icon">🚚</span>
+      <span class="modo-name">Distribuir</span>
+    </button>
+    <button class="modo-btn" id="ov-modo-cerrar" onclick="selectModo('cerrar')">
+      <span class="modo-icon">🔒</span>
+      <span class="modo-name">Cerrar</span>
+    </button>
+  </div>
+
+  <!-- BLOQUE CERRAR (módulo de andenes original, sin cambios) -->
+  <div id="ovCerrarBlock" style="display:none;">
+    <div class="step-label">
+      <span class="step-num">1</span>
+      Escanea el código del palet
+    </div>
+    <div class="bc-card" style="margin-bottom:20px;">
+      <canvas id="ovBcPalet"></canvas>
+      <div class="bc-card-meta" id="ovBcPaletMeta"></div>
+      <div class="bc-actions">
+        <button class="bc-action-btn" onclick="showFS('ovBcPalet', document.getElementById('ovBcPaletMeta').textContent)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+          Pantalla completa
+        </button>
+        <button class="bc-action-btn" onclick="dlPNG('ovBcPalet','palet')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Descargar
+        </button>
+      </div>
+    </div>
+
+    <div style="height:1px;background:var(--border);margin-bottom:20px;"></div>
+
+    <div class="step-label">
+      <span class="step-num">2</span>
+      Selecciona el andén de cierre
+    </div>
+    <div class="anden-grid">
+      <button class="anden-btn" id="ov-anden-R01" onclick="selectAnden('R01')">
+        <span class="anden-icon">🚪</span>
+        <span class="anden-name">R01</span>
+        <span class="anden-sub">Andén 1</span>
       </button>
-      <button class="bc-action-btn" onclick="dlPNG('ovBcPalet','palet')">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Descargar
+      <button class="anden-btn" id="ov-anden-R02" onclick="selectAnden('R02')">
+        <span class="anden-icon">🚪</span>
+        <span class="anden-name">R02</span>
+        <span class="anden-sub">Andén 2</span>
       </button>
+      <button class="anden-btn" id="ov-anden-R03" onclick="selectAnden('R03')">
+        <span class="anden-icon">🚪</span>
+        <span class="anden-name">R03</span>
+        <span class="anden-sub">Andén 3</span>
+      </button>
+    </div>
+    <div class="bc-card" id="ovAndenCard" style="display:none;margin-bottom:20px;">
+      <canvas id="ovBcAnden"></canvas>
+      <div class="bc-card-meta" id="ovBcAndenMeta"></div>
+      <div class="bc-actions">
+        <button class="bc-action-btn" onclick="showFS('ovBcAnden', document.getElementById('ovBcAndenMeta').textContent)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+          Pantalla completa
+        </button>
+        <button class="bc-action-btn" onclick="dlPNG('ovBcAnden','anden')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Descargar
+        </button>
+      </div>
     </div>
   </div>
 
-  <div style="height:1px;background:var(--border);margin-bottom:20px;"></div>
+  <!-- BLOQUE DISTRIBUIR (nuevo) -->
+  <div id="ovDistribuirBlock" style="display:none;">
+    <div class="step-label">
+      <span class="step-num">1</span>
+      Código de tienda
+    </div>
+    <div class="bc-card" style="margin-bottom:20px;">
+      <canvas id="ovBcDistribTienda"></canvas>
+      <div class="bc-card-meta" id="ovBcDistribTiendaMeta"></div>
+      <div class="bc-actions">
+        <button class="bc-action-btn" onclick="showFS('ovBcDistribTienda', document.getElementById('ovBcDistribTiendaMeta').textContent)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+          Pantalla completa
+        </button>
+        <button class="bc-action-btn" onclick="dlPNG('ovBcDistribTienda','tienda')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Descargar
+        </button>
+      </div>
+    </div>
 
-  <div class="step-label">
-    <span class="step-num">2</span>
-    Selecciona el andén de cierre
-  </div>
-  <div class="anden-grid">
-    <button class="anden-btn" id="ov-anden-R01" onclick="selectAnden('R01')">
-      <span class="anden-icon">🚪</span>
-      <span class="anden-name">R01</span>
-      <span class="anden-sub">Andén 1</span>
-    </button>
-    <button class="anden-btn" id="ov-anden-R02" onclick="selectAnden('R02')">
-      <span class="anden-icon">🚪</span>
-      <span class="anden-name">R02</span>
-      <span class="anden-sub">Andén 2</span>
-    </button>
-    <button class="anden-btn" id="ov-anden-R03" onclick="selectAnden('R03')">
-      <span class="anden-icon">🚪</span>
-      <span class="anden-name">R03</span>
-      <span class="anden-sub">Andén 3</span>
-    </button>
-  </div>
-  <div class="bc-card" id="ovAndenCard" style="display:none;margin-bottom:20px;">
-    <canvas id="ovBcAnden"></canvas>
-    <div class="bc-card-meta" id="ovBcAndenMeta"></div>
-    <div class="bc-actions">
-      <button class="bc-action-btn" onclick="showFS('ovBcAnden', document.getElementById('ovBcAndenMeta').textContent)">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
-        Pantalla completa
+    <div style="height:1px;background:var(--border);margin-bottom:20px;"></div>
+
+    <div class="step-label">
+      <span class="step-num">2</span>
+      Material a distribuir
+    </div>
+
+    <!-- Sin material leído aún -->
+    <div class="material-empty" id="ovMaterialEmpty">
+      <span style="font-size:30px;">📷</span>
+      <button class="material-scan-btn" onclick="openMaterialScanner()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        Escanear material
       </button>
-      <button class="bc-action-btn" onclick="dlPNG('ovBcAnden','anden')">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Descargar
-      </button>
+      <div class="material-hint">El material se mantiene aunque cambies de tienda</div>
+    </div>
+
+    <!-- Material ya leído -->
+    <div class="bc-card" id="ovMaterialCard" style="display:none;margin-bottom:20px;">
+      <div class="material-active-label" style="width:100%;">
+        <span class="material-active-tag"><span class="dot"></span> Material activo</span>
+        <button class="change-material-btn" onclick="cambiarMaterial()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          Cambiar
+        </button>
+      </div>
+      <canvas id="ovBcMaterial"></canvas>
+      <div class="bc-card-meta" id="ovBcMaterialMeta"></div>
+      <div class="bc-actions">
+        <button class="bc-action-btn" onclick="showFS('ovBcMaterial', document.getElementById('ovBcMaterialMeta').textContent)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+          Pantalla completa
+        </button>
+        <button class="bc-action-btn" onclick="dlPNG('ovBcMaterial','material')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Descargar
+        </button>
+      </div>
     </div>
   </div>
+</div>
+
+<!-- SCANNER DE MATERIAL -->
+<div class="scanner-overlay" id="scannerOverlay">
+  <div class="scanner-header">
+    <span>Escanear material</span>
+    <button class="scanner-close" onclick="closeMaterialScanner()">✕</button>
+  </div>
+  <div id="materialScannerReader"></div>
+  <div class="scanner-error" id="scannerError"></div>
+  <div class="scanner-hint">Apunta la cámara al código de barra del material</div>
 </div>
 
 <!-- MODAL CONFIRMACION TIPO -->
@@ -366,6 +483,7 @@ select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script>
 const TIENDAS = [161,201,202,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220,221,222,223,224,801,802,803,804,805,806,807,808,809,810,811,812,813,814,815,816,901,902,903,904,906,907,908,909,910,911];
 const GRUPOS = [
@@ -380,6 +498,9 @@ let tipoAlmacen = 'C02';
 let tipoPendiente = null;
 let ovTienda = null;
 let ovSerie = 1;
+let ovModo = null;          // 'distribuir' | 'cerrar' | null
+let materialActivo = null;  // código del material — global, sobrevive cambios de tienda
+let html5QrCode = null;
 
 function pad(n, len) { return String(n).padStart(len, '0'); }
 
@@ -454,7 +575,7 @@ function renderTiendas() {
   `).join('');
 }
 
-function openTienda(t, keepAnden) {
+function openTienda(t, keepAnden, keepModo) {
   ovTienda = t;
   ovSerie = globalSerie;
   document.getElementById('ovSerieVal').textContent = pad(ovSerie, 3);
@@ -464,6 +585,14 @@ function openTienda(t, keepAnden) {
   if (!keepAnden) {
     ['R01','R02','R03'].forEach(r => document.getElementById('ov-anden-'+r).classList.remove('selected'));
     document.getElementById('ovAndenCard').style.display = 'none';
+  }
+
+  if (!keepModo) {
+    ovModo = null;
+    document.getElementById('ov-modo-distribuir').classList.remove('selected');
+    document.getElementById('ov-modo-cerrar').classList.remove('selected');
+    document.getElementById('ovCerrarBlock').style.display = 'none';
+    document.getElementById('ovDistribuirBlock').style.display = 'none';
   }
 
   const idx = TIENDAS.indexOf(t);
@@ -478,12 +607,14 @@ function openTienda(t, keepAnden) {
   else { nextBtn.style.display = 'none'; }
 
   generateOvPalet();
+  if (keepModo && ovModo === 'distribuir') renderMaterialState();
   const ov = document.getElementById('tiendaOverlay');
   ov.classList.add('active');
   ov.scrollTop = 0;
 }
 
 function closeOverlay() {
+  closeMaterialScanner();
   document.getElementById('tiendaOverlay').classList.remove('active');
 }
 
@@ -491,14 +622,14 @@ function nextTienda() {
   const idx = TIENDAS.indexOf(ovTienda);
   if (idx === -1 || idx >= TIENDAS.length-1) return;
   const keepAnden = document.querySelector('.anden-btn.selected') !== null;
-  openTienda(TIENDAS[idx+1], keepAnden);
+  openTienda(TIENDAS[idx+1], keepAnden, ovModo !== null);
 }
 
 function prevTienda() {
   const idx = TIENDAS.indexOf(ovTienda);
   if (idx <= 0) return;
   const keepAnden = document.querySelector('.anden-btn.selected') !== null;
-  openTienda(TIENDAS[idx-1], keepAnden);
+  openTienda(TIENDAS[idx-1], keepAnden, ovModo !== null);
 }
 
 function adjustOvSerie(d) {
@@ -512,13 +643,106 @@ function generateOvPalet() {
   const fecha = document.getElementById('cpFecha').value;
   if (!fecha || !ovTienda) return;
   const code = buildCode(ovTienda, ovSerie, fecha);
-  try {
-    JsBarcode(document.getElementById('ovBcPalet'), code, {
-      format:'CODE128', lineColor:'#000000', background:'#ffffff',
-      width:3, height:90, displayValue:true, fontSize:13, fontOptions:'600', font:'monospace', margin:12,
-    });
-    document.getElementById('ovBcPaletMeta').textContent = code;
-  } catch(e) {}
+  ['ovBcPalet','ovBcDistribTienda'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    try {
+      JsBarcode(el, code, {
+        format:'CODE128', lineColor:'#000000', background:'#ffffff',
+        width:3, height:90, displayValue:true, fontSize:13, fontOptions:'600', font:'monospace', margin:12,
+      });
+    } catch(e) {}
+  });
+  document.getElementById('ovBcPaletMeta').textContent = code;
+  const distMeta = document.getElementById('ovBcDistribTiendaMeta');
+  if (distMeta) distMeta.textContent = code;
+}
+
+// ---- MODO DISTRIBUIR / CERRAR ----
+function selectModo(modo) {
+  ovModo = modo;
+  document.getElementById('ov-modo-distribuir').classList.toggle('selected', modo === 'distribuir');
+  document.getElementById('ov-modo-cerrar').classList.toggle('selected', modo === 'cerrar');
+  document.getElementById('ovCerrarBlock').style.display = modo === 'cerrar' ? 'block' : 'none';
+  document.getElementById('ovDistribuirBlock').style.display = modo === 'distribuir' ? 'block' : 'none';
+  if (modo === 'distribuir') {
+    generateOvPalet();
+    renderMaterialState();
+  }
+}
+
+// ---- MATERIAL A DISTRIBUIR ----
+function renderMaterialState() {
+  const empty = document.getElementById('ovMaterialEmpty');
+  const card = document.getElementById('ovMaterialCard');
+  if (!empty || !card) return;
+  if (materialActivo) {
+    empty.style.display = 'none';
+    card.style.display = 'flex';
+    try {
+      JsBarcode(document.getElementById('ovBcMaterial'), materialActivo, {
+        format:'CODE128', lineColor:'#000000', background:'#ffffff',
+        width:3, height:90, displayValue:true, fontSize:13, fontOptions:'600', font:'monospace', margin:12,
+      });
+      document.getElementById('ovBcMaterialMeta').textContent = materialActivo;
+    } catch(e) {}
+  } else {
+    empty.style.display = 'flex';
+    card.style.display = 'none';
+  }
+}
+
+function openMaterialScanner() {
+  const errEl = document.getElementById('scannerError');
+  errEl.style.display = 'none'; errEl.textContent = '';
+  document.getElementById('scannerOverlay').classList.add('active');
+
+  html5QrCode = new Html5Qrcode('materialScannerReader');
+  const config = {
+    fps: 10,
+    qrbox: { width: 280, height: 140 },
+    formatsToSupport: [
+      Html5QrcodeSupportedFormats.CODE_128,
+      Html5QrcodeSupportedFormats.CODE_39,
+      Html5QrcodeSupportedFormats.EAN_13,
+      Html5QrcodeSupportedFormats.EAN_8,
+      Html5QrcodeSupportedFormats.UPC_A,
+      Html5QrcodeSupportedFormats.ITF,
+      Html5QrcodeSupportedFormats.QR_CODE,
+    ],
+  };
+  html5QrCode.start(
+    { facingMode: 'environment' },
+    config,
+    (decodedText) => { onMaterialScanned(decodedText); },
+    () => { /* frames sin lectura — se ignoran */ }
+  ).catch(() => {
+    errEl.textContent = 'No se pudo acceder a la cámara. Revisa los permisos en Ajustes.';
+    errEl.style.display = 'block';
+  });
+}
+
+function onMaterialScanned(decodedText) {
+  if (navigator.vibrate) navigator.vibrate(80);
+  materialActivo = decodedText;
+  closeMaterialScanner();
+  renderMaterialState();
+}
+
+function closeMaterialScanner() {
+  document.getElementById('scannerOverlay').classList.remove('active');
+  if (html5QrCode) {
+    const instance = html5QrCode;
+    html5QrCode = null;
+    instance.stop().then(() => instance.clear()).catch(() => {});
+  }
+}
+
+function cambiarMaterial() {
+  if (!confirm('¿Cambiar el material actual? Se descartará el código leído.')) return;
+  materialActivo = null;
+  renderMaterialState();
+  openMaterialScanner();
 }
 
 function selectAnden(r) {
