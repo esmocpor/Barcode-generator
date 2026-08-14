@@ -116,6 +116,7 @@ select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
 .material-scan-btn { height: 48px; padding: 0 20px; background: var(--blue); color: #fff; border: none; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; }
 .material-scan-btn:active { opacity: 0.85; }
 .material-hint { font-size: 12px; color: var(--muted); text-align: center; }
+.manual-material-btn { background: none; border: none; color: var(--blue); font-size: 13px; font-weight: 600; text-decoration: underline; cursor: pointer; padding: 4px; }
 .material-active-label { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
 .material-active-tag { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--green); display: flex; align-items: center; gap: 6px; }
 .change-material-btn { display: flex; align-items: center; gap: 5px; background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: 6px 12px; font-size: 12px; font-weight: 600; color: var(--yellow); cursor: pointer; }
@@ -128,6 +129,7 @@ select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
 #materialScannerReader { flex: 1; width: 100%; }
 .scanner-hint { color: #ccc; font-size: 13px; text-align: center; padding: 12px 20px calc(env(safe-area-inset-bottom,16px) + 12px); }
 .scanner-error { color: var(--red); font-size: 13px; text-align: center; padding: 0 20px 12px; display: none; }
+.scanner-status { color: var(--green); font-size: 12px; font-weight: 600; text-align: center; padding: 8px 20px 0; }
 
 /* MODAL CONFIRMACION */
 .modal-bg { display: none; position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.7); z-index: 200; align-items: center; justify-content: center; padding: 24px; }
@@ -421,6 +423,7 @@ select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
         Escanear material
       </button>
+      <button class="manual-material-btn" onclick="ingresarMaterialManual()">Ingresar código manualmente</button>
       <div class="material-hint">El material se mantiene aunque cambies de tienda</div>
     </div>
 
@@ -428,10 +431,12 @@ select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
     <div class="bc-card" id="ovMaterialCard" style="display:none;margin-bottom:20px;">
       <div class="material-active-label" style="width:100%;">
         <span class="material-active-tag"><span class="dot"></span> Material activo</span>
-        <button class="change-material-btn" onclick="cambiarMaterial()">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-          Cambiar
-        </button>
+        <div style="display:flex;gap:6px;">
+          <button class="change-material-btn" onclick="cambiarMaterial()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            Cambiar
+          </button>
+        </div>
       </div>
       <canvas id="ovBcMaterial"></canvas>
       <div class="bc-card-meta" id="ovBcMaterialMeta"></div>
@@ -456,8 +461,9 @@ select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
     <button class="scanner-close" onclick="closeMaterialScanner()">✕</button>
   </div>
   <div id="materialScannerReader"></div>
+  <div class="scanner-status" id="scannerStatus">🔎 Buscando código…</div>
   <div class="scanner-error" id="scannerError"></div>
-  <div class="scanner-hint">Apunta la cámara al código de barra del material</div>
+  <div class="scanner-hint">Apunta la cámara al código de barra del material · Aléjalo un poco si no enfoca</div>
 </div>
 
 <!-- MODAL CONFIRMACION TIPO -->
@@ -694,31 +700,58 @@ function renderMaterialState() {
 
 function openMaterialScanner() {
   const errEl = document.getElementById('scannerError');
+  const statusEl = document.getElementById('scannerStatus');
   errEl.style.display = 'none'; errEl.textContent = '';
+  statusEl.textContent = '🔎 Buscando código…';
   document.getElementById('scannerOverlay').classList.add('active');
 
-  html5QrCode = new Html5Qrcode('materialScannerReader');
+  if (typeof Html5Qrcode === 'undefined') {
+    errEl.textContent = 'No se pudo cargar el lector de cámara (sin conexión). Usa "Ingresar código manualmente".';
+    errEl.style.display = 'block';
+    statusEl.textContent = '';
+    return;
+  }
+
+  try {
+    // formatsToSupport va en el CONSTRUCTOR, no en start() — aquí es donde
+    // se le indica a la librería que además de QR lea códigos de barra 1D.
+    html5QrCode = new Html5Qrcode('materialScannerReader', {
+      formatsToSupport: [
+        Html5QrcodeSupportedFormats.CODE_128,
+        Html5QrcodeSupportedFormats.CODE_39,
+        Html5QrcodeSupportedFormats.CODE_93,
+        Html5QrcodeSupportedFormats.EAN_13,
+        Html5QrcodeSupportedFormats.EAN_8,
+        Html5QrcodeSupportedFormats.UPC_A,
+        Html5QrcodeSupportedFormats.UPC_E,
+        Html5QrcodeSupportedFormats.ITF,
+        Html5QrcodeSupportedFormats.QR_CODE,
+      ],
+      verbose: false,
+    });
+  } catch (e) {
+    errEl.textContent = 'No se pudo iniciar el lector. Usa "Ingresar código manualmente".';
+    errEl.style.display = 'block';
+    statusEl.textContent = '';
+    return;
+  }
+
   const config = {
-    fps: 10,
-    qrbox: { width: 280, height: 140 },
-    formatsToSupport: [
-      Html5QrcodeSupportedFormats.CODE_128,
-      Html5QrcodeSupportedFormats.CODE_39,
-      Html5QrcodeSupportedFormats.EAN_13,
-      Html5QrcodeSupportedFormats.EAN_8,
-      Html5QrcodeSupportedFormats.UPC_A,
-      Html5QrcodeSupportedFormats.ITF,
-      Html5QrcodeSupportedFormats.QR_CODE,
-    ],
+    fps: 12,
+    qrbox: { width: 300, height: 150 },
+    // Resolución más alta ayuda mucho a leer códigos de barra finos con la cámara del iPhone
+    videoConstraints: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } },
   };
+
   html5QrCode.start(
     { facingMode: 'environment' },
     config,
     (decodedText) => { onMaterialScanned(decodedText); },
-    () => { /* frames sin lectura — se ignoran */ }
+    () => { /* frames sin lectura — normal, se ignoran */ }
   ).catch(() => {
-    errEl.textContent = 'No se pudo acceder a la cámara. Revisa los permisos en Ajustes.';
+    errEl.textContent = 'No se pudo acceder a la cámara. Revisa los permisos en Ajustes > Safari > Cámara, o usa "Ingresar código manualmente".';
     errEl.style.display = 'block';
+    statusEl.textContent = '';
   });
 }
 
@@ -743,6 +776,15 @@ function cambiarMaterial() {
   materialActivo = null;
   renderMaterialState();
   openMaterialScanner();
+}
+
+function ingresarMaterialManual() {
+  const valor = prompt('Ingresa el código del material manualmente:');
+  if (valor === null) return;
+  const limpio = valor.trim();
+  if (!limpio) return;
+  materialActivo = limpio;
+  renderMaterialState();
 }
 
 function selectAnden(r) {
