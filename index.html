@@ -725,20 +725,22 @@ function openMaterialScanner() {
 
   try {
     // formatsToSupport va en el CONSTRUCTOR, no en start() — aquí es donde
-    // se le indica a la librería que además de QR lea códigos de barra 1D.
+    // se le indica a la librería qué formatos leer.
+    // Limitado a los 3 formatos reales que usa CCN (UPC-A en empaques individuales,
+    // ITF en cajas/cartones, EAN-13 como respaldo cercano a UPC-A). Antes probaba 7
+    // formatos por cada cuadro de video — cada formato de más que descarta añade
+    // trabajo de decodificación en cada frame, así que esto es lo que más acelera la lectura.
     html5QrCode = new Html5Qrcode('materialScannerReader', {
       formatsToSupport: [
-        Html5QrcodeSupportedFormats.CODE_128,
-        Html5QrcodeSupportedFormats.CODE_39,
-        Html5QrcodeSupportedFormats.CODE_93,
-        Html5QrcodeSupportedFormats.EAN_13,
-        Html5QrcodeSupportedFormats.EAN_8,
         Html5QrcodeSupportedFormats.UPC_A,
-        Html5QrcodeSupportedFormats.UPC_E,
+        Html5QrcodeSupportedFormats.EAN_13,
         Html5QrcodeSupportedFormats.ITF,
-        Html5QrcodeSupportedFormats.QR_CODE,
       ],
       verbose: false,
+      // Usa el detector nativo del sistema cuando esté disponible (Android/Chrome) — es
+      // más rápido que el decodificador en JavaScript. En iPhone/Safari no aplica todavía,
+      // pero no hace daño dejarlo activado.
+      experimentalFeatures: { useBarCodeDetectorIfSupported: true },
     });
   } catch (e) {
     errEl.textContent = 'No se pudo iniciar el lector. Usa "Ingresar código manualmente".';
@@ -748,10 +750,17 @@ function openMaterialScanner() {
   }
 
   const config = {
-    fps: 12,
-    qrbox: { width: 300, height: 150 },
-    // Resolución más alta ayuda mucho a leer códigos de barra finos con la cámara del iPhone
-    videoConstraints: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } },
+    fps: 15,
+    // Caja más ancha que alta — así calza con la forma real de UPC-A / ITF y la
+    // librería procesa menos píxeles irrelevantes por cuadro.
+    qrbox: { width: 300, height: 120 },
+    // Resolución más baja = cada cuadro se procesa más rápido. 1920x1080 se veía
+    // nítido pero hacía más lenta la decodificación; a la distancia normal de
+    // escaneo, 1280x720 ya es más que suficiente para leer un código de barra.
+    videoConstraints: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
+    // Los códigos de barra en cajas/empaques casi nunca aparecen invertidos —
+    // desactivar el intento de lectura "espejo" ahorra un segundo intento por cuadro.
+    disableFlip: true,
   };
 
   html5QrCode.start(
