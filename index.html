@@ -756,14 +756,8 @@ function selectModo(modo) {
 }
 
 // ---- MATERIAL A DISTRIBUIR ----
-function adaptiveBarWidth(text) {
-  const len = (text || '').length;
-  if (len <= 15) return 3;
-  if (len <= 22) return 2.4;
-  if (len <= 30) return 2;
-  if (len <= 40) return 1.5;
-  return 1;
-}
+// (El grosor de las barras del material ahora se calcula dinámicamente dentro de
+// renderMaterialState, midiendo el ancho real disponible en pantalla — ver abajo.)
 
 function renderMaterialState() {
   const empty = document.getElementById('ovMaterialEmpty');
@@ -773,10 +767,21 @@ function renderMaterialState() {
     empty.style.display = 'none';
     card.style.display = 'flex';
     try {
-      JsBarcode(document.getElementById('ovBcMaterial'), materialActivo, {
+      const canvas = document.getElementById('ovBcMaterial');
+      const baseOpts = {
         format:'CODE128', lineColor:'#000000', background:'#ffffff',
-        width: adaptiveBarWidth(materialActivo), height:90, displayValue:true, fontSize:13, fontOptions:'600', font:'monospace', margin:12,
-      });
+        height:90, displayValue:true, fontSize:13, fontOptions:'600', font:'monospace', margin:12,
+      };
+      // 1) Dibuja primero con un grosor de referencia para MEDIR cuánto ocupa de verdad.
+      JsBarcode(canvas, materialActivo, { ...baseOpts, width: 2.5 });
+      const anchoDisponible = (canvas.parentElement.clientWidth || 320) - 4;
+      const anchoRenderizado = canvas.width;
+      // 2) Si no cupo, recalcula el grosor exacto que sí quepa (con un piso de 0.55,
+      //    por debajo del cual las barras dejan de ser legibles hasta para un lector físico).
+      if (anchoRenderizado > anchoDisponible) {
+        const anchoAjustado = Math.max(0.55, +(2.5 * (anchoDisponible / anchoRenderizado)).toFixed(2));
+        JsBarcode(canvas, materialActivo, { ...baseOpts, width: anchoAjustado });
+      }
       document.getElementById('ovBcMaterialMeta').textContent = materialActivo;
     } catch(e) {}
     actualizarUltimaLectura();
@@ -821,15 +826,19 @@ function openMaterialScanner() {
   try {
     // formatsToSupport va en el CONSTRUCTOR, no en start() — aquí es donde
     // se le indica a la librería qué formatos leer.
-    // Limitado a los 3 formatos reales que usa CCN (UPC-A en empaques individuales,
-    // ITF en cajas/cartones, EAN-13 como respaldo cercano a UPC-A). Antes probaba 7
-    // formatos por cada cuadro de video — cada formato de más que descarta añade
-    // trabajo de decodificación en cada frame, así que esto es lo que más acelera la lectura.
+    // 8 formatos de código de barra 1D (sin QR, que no se usa en este proceso).
+    // UPC-A/EAN-13/ITF cubren lo más común en empaques y cajas; se agregan
+    // Code128/Code39/Code93/EAN-8/UPC-E para los materiales que antes no leía.
     html5QrCode = new Html5Qrcode('materialScannerReader', {
       formatsToSupport: [
         Html5QrcodeSupportedFormats.UPC_A,
         Html5QrcodeSupportedFormats.EAN_13,
         Html5QrcodeSupportedFormats.ITF,
+        Html5QrcodeSupportedFormats.CODE_128,
+        Html5QrcodeSupportedFormats.CODE_39,
+        Html5QrcodeSupportedFormats.CODE_93,
+        Html5QrcodeSupportedFormats.EAN_8,
+        Html5QrcodeSupportedFormats.UPC_E,
       ],
       verbose: false,
       // Usa el detector nativo del sistema cuando esté disponible (Android/Chrome) — es
